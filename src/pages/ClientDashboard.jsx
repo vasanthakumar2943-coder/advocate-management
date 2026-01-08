@@ -13,9 +13,9 @@ export default function ClientDashboard() {
 
   const loadAdvocates = async () => {
     try {
-      const res = await API.get(
-        "users/?role=advocate&status=approved"
-      );
+      const res = await API.get("users/?role=advocate&status=approved");
+
+      
       setAdvocates(res.data);
     } catch (err) {
       toast.error("Failed to load advocates");
