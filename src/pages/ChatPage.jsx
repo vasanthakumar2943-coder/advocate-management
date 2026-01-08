@@ -4,14 +4,17 @@ import axios from "axios";
 
 export default function ChatPage() {
   const { appointmentId } = useParams();
+
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
 
-  const token = localStorage.getItem("access");
+  const token =
+    localStorage.getItem("access") || localStorage.getItem("token");
   const username = localStorage.getItem("username");
 
   const API = "https://web-production-d827.up.railway.app/api";
 
+  // 🔁 FETCH MESSAGES (POLLING)
   useEffect(() => {
     if (!token) return;
 
@@ -20,22 +23,24 @@ export default function ChatPage() {
         .get(`${API}/chat/${appointmentId}/`, {
           headers: { Authorization: `Bearer ${token}` },
         })
-        .then(res => setMessages(res.data));
+        .then((res) => setMessages(res.data))
+        .catch(() => {});
     }, 2000);
 
     return () => clearInterval(interval);
   }, [appointmentId, token]);
 
+  // 📤 SEND MESSAGE
   const sendMessage = () => {
     if (!text.trim()) return;
 
-    axios.post(
-      `${API}/chat/${appointmentId}/`,
-      { message: text },
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-
-    setText("");
+    axios
+      .post(
+        `${API}/chat/${appointmentId}/`,
+        { message: text },
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+      .then(() => setText(""));
   };
 
   return (
