@@ -1,16 +1,12 @@
 import React, { useState } from "react";
 import axios from "axios";
-import api from "../api/axios";
-
-api.post("auth/signup/", data);
-
 
 /* =====================================================
    AXIOS BASE CONFIG (FIXED – NO LOGIC CHANGE)
    ===================================================== */
 const API = axios.create({
   baseURL: "https://web-production-d827.up.railway.app/api/",
-  withCredentials: false, // ✅ JWT only (important for CORS)
+  withCredentials: false, // JWT only
 });
 
 export default function Signup() {
