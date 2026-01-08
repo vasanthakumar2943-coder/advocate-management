@@ -11,18 +11,16 @@ export default function ChatPage() {
   const [typing, setTyping] = useState("");
   const [status, setStatus] = useState("offline");
 
-  // ✅ SAFE TOKEN (WORKS FOR OLD + NEW LOGIN)
+  // ✅ SAFE TOKEN
   const token =
     localStorage.getItem("access") || localStorage.getItem("token");
   const username = localStorage.getItem("username");
 
   /* ===========================
-     CONNECT WEBSOCKET (FINAL)
+     CONNECT WEBSOCKET
   =========================== */
   useEffect(() => {
     if (!token) return;
-
-    // ❌ prevent multiple sockets
     if (wsRef.current) return;
 
     const ws = new WebSocket(
@@ -59,43 +57,33 @@ export default function ChatPage() {
       wsRef.current = null;
     };
 
-    return () => {
-      ws.close();
-      wsRef.current = null;
-    };
+    return () => {};
   }, [appointmentId, token, username]);
 
   /* ===========================
-     SEND MESSAGE (FIXED)
+     SEND MESSAGE ✅ FIXED
   =========================== */
   const sendMessage = () => {
     if (!text.trim()) return;
+    if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) return;
 
-    if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
-      console.warn("WS not ready");
-      return;
-    }
-
+    // ❌ sender removed
     wsRef.current.send(
-      JSON.stringify({
-        sender: username,
-        message: text,
-      })
+      JSON.stringify({ message: text })
     );
 
     setText("");
   };
 
   /* ===========================
-     TYPING INDICATOR
+     TYPING INDICATOR ✅ FIXED
   =========================== */
   const sendTyping = () => {
     if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) return;
     if (typingTimeout.current) return;
 
-    wsRef.current.send(
-      JSON.stringify({ typing: true, sender: username })
-    );
+    // ❌ sender removed
+    wsRef.current.send(JSON.stringify({ typing: true }));
 
     typingTimeout.current = setTimeout(() => {
       typingTimeout.current = null;
