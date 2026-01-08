@@ -1,5 +1,10 @@
 import React, { useState } from "react";
 import axios from "axios";
+import api from "../api/axios";
+
+api.post("auth/login/", data);
+api.get("auth/me/");
+
 
 /* =====================================================
    AXIOS BASE CONFIG (FIXED – LOGIC UNCHANGED)
