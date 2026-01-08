@@ -1,28 +1,30 @@
 import React, { useEffect, useState } from "react";
 import API from "../api/api";
-import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 export default function ClientDashboard() {
   const [advocates, setAdvocates] = useState([]);
-  const navigate = useNavigate();
 
   useEffect(() => {
-    fetchAdvocates();
+    loadAdvocates();
   }, []);
 
-  const fetchAdvocates = async () => {
+  const loadAdvocates = async () => {
     try {
-      const res = await API.get("users/?role=advocate&status=approved");
+      const res = await API.get(
+        "users/?role=advocate&status=approved"
+      );
       setAdvocates(res.data);
-    } catch {
+    } catch (err) {
       toast.error("Failed to load advocates");
     }
   };
 
-  const bookAdvocate = async (id) => {
+  const bookAdvocate = async (advocateId) => {
     try {
-      await API.post("appointments/", { advocate: id });
+      await API.post("appointments/", {
+        advocate: advocateId,
+      });
       toast.success("Request sent to advocate");
     } catch {
       toast.error("Booking failed");
@@ -42,6 +44,12 @@ export default function ClientDashboard() {
         </thead>
 
         <tbody>
+          {advocates.length === 0 && (
+            <tr>
+              <td colSpan="2">No advocates available</td>
+            </tr>
+          )}
+
           {advocates.map((a) => (
             <tr key={a.id}>
               <td>{a.username}</td>
