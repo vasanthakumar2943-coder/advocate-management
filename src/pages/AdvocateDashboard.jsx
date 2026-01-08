@@ -1,20 +1,19 @@
+import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import React from "react";
 
 /* =====================================================
-   AXIOS BASE CONFIG (UPGRADE ONLY)
+   AXIOS BASE CONFIG (FIXED – NO LOGIC CHANGE)
    ===================================================== */
 const API = axios.create({
-  baseURL: "https://web-production-d827.up.railway.app/api",
+  baseURL: "https://web-production-d827.up.railway.app/api/",
+  withCredentials: false,
 });
 
 export default function AdvocateDashboard() {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // ✅ USE NEW TOKEN KEY (UPGRADE)
   const token = localStorage.getItem("access");
 
   useEffect(() => {
@@ -25,28 +24,28 @@ export default function AdvocateDashboard() {
       return;
     }
 
-    fetchApps();
+    fetchAppointments();
     // eslint-disable-next-line
   }, []);
 
-  // ============================
-  // FETCH ADVOCATE APPOINTMENTS
-  // ============================
-  const fetchApps = async () => {
+  /* ============================
+     FETCH ADVOCATE APPOINTMENTS
+     ============================ */
+  const fetchAppointments = async () => {
     try {
       setLoading(true);
 
-      const res = await API.get("/advocate/my-appointments/", {
+      const res = await API.get("advocate/my-appointments/", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
-      // ✅ IGNORE DUPLICATES (UNCHANGED)
+      // ✅ REMOVE DUPLICATES (UNCHANGED LOGIC)
       const seen = new Set();
       const unique = [];
 
-      res.data.forEach((a) => {
+      (res.data || []).forEach((a) => {
         if (!seen.has(a.id)) {
           seen.add(a.id);
           unique.push(a);
@@ -59,6 +58,7 @@ export default function AdvocateDashboard() {
 
       if (err.response?.status === 401) {
         toast.error("Session expired. Please login again.");
+        localStorage.clear();
         window.location.href = "/login";
       } else {
         toast.error("Failed to load appointments");
@@ -68,13 +68,13 @@ export default function AdvocateDashboard() {
     }
   };
 
-  // ============================
-  // APPROVE APPOINTMENT (UNCHANGED)
-  // ============================
+  /* ============================
+     APPROVE APPOINTMENT
+     ============================ */
   const approve = async (id) => {
     try {
       await API.post(
-        `/advocate/approve-appointment/${id}/`,
+        `advocate/approve-appointment/${id}/`,
         {},
         {
           headers: {
@@ -84,28 +84,28 @@ export default function AdvocateDashboard() {
       );
 
       toast.success("Appointment approved");
-      fetchApps();
+      fetchAppointments();
     } catch (err) {
       console.error(err);
       toast.error("Approval failed");
     }
   };
 
-  // ============================
-  // DELETE APPOINTMENT (UNCHANGED)
-  // ============================
+  /* ============================
+     DELETE APPOINTMENT
+     ============================ */
   const remove = async (id) => {
     if (!window.confirm("Delete this appointment?")) return;
 
     try {
-      await API.delete(`/appointments/delete/${id}/`, {
+      await API.delete(`appointments/delete/${id}/`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
       toast.success("Appointment deleted");
-      fetchApps();
+      fetchAppointments();
     } catch (err) {
       console.error(err);
       toast.error("Delete failed");
