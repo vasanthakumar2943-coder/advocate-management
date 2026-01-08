@@ -1,34 +1,43 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import API from "../api/api";
 import { useNavigate } from "react-router-dom";
-
-const API = axios.create({
-  baseURL: "https://web-production-d827.up.railway.app/api/",
-});
+import { toast } from "react-toastify";
 
 export default function ClientDashboard() {
   const [advocates, setAdvocates] = useState([]);
   const navigate = useNavigate();
 
-  const auth = {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("access")}`,
-    },
-  };
-
   useEffect(() => {
-    API.get("advocates/", auth).then((res) => setAdvocates(res.data));
+    fetchAdvocates();
   }, []);
 
+  const fetchAdvocates = async () => {
+    try {
+      const res = await API.get("users/?role=advocate&status=approved");
+      setAdvocates(res.data);
+    } catch {
+      toast.error("Failed to load advocates");
+    }
+  };
+
+  const bookAdvocate = async (id) => {
+    try {
+      await API.post("appointments/", { advocate: id });
+      toast.success("Request sent to advocate");
+    } catch {
+      toast.error("Booking failed");
+    }
+  };
+
   return (
-    <div className="table-box">
+    <div className="page">
       <h2>Available Advocates</h2>
 
-      <table>
+      <table className="table">
         <thead>
           <tr>
             <th>Name</th>
-            <th>Chat</th>
+            <th>Action</th>
           </tr>
         </thead>
 
@@ -37,8 +46,11 @@ export default function ClientDashboard() {
             <tr key={a.id}>
               <td>{a.username}</td>
               <td>
-                <button onClick={() => navigate(`/chat/${a.id}`)}>
-                  Chat
+                <button
+                  className="btn"
+                  onClick={() => bookAdvocate(a.id)}
+                >
+                  Book
                 </button>
               </td>
             </tr>

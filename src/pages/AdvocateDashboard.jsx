@@ -1,44 +1,74 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import API from "../api/api";
 import { useNavigate } from "react-router-dom";
-
-const API = axios.create({
-  baseURL: "https://web-production-d827.up.railway.app/api/",
-});
+import { toast } from "react-toastify";
 
 export default function AdvocateDashboard() {
-  const [clients, setClients] = useState([]);
+  const [requests, setRequests] = useState([]);
   const navigate = useNavigate();
 
-  const auth = {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("access")}`,
-    },
-  };
-
   useEffect(() => {
-    API.get("advocate/clients/", auth).then((res) => setClients(res.data));
+    loadRequests();
   }, []);
 
+  const loadRequests = async () => {
+    try {
+      const res = await API.get("appointments/?status=pending");
+      setRequests(res.data);
+    } catch {
+      toast.error("Failed to load requests");
+    }
+  };
+
+  const approve = async (id, clientId) => {
+    try {
+      await API.post(`appointments/${id}/approve/`);
+      toast.success("Approved");
+      navigate(`/chat/${clientId}`);
+    } catch {
+      toast.error("Approval failed");
+    }
+  };
+
+  const reject = async (id) => {
+    try {
+      await API.delete(`appointments/${id}/`);
+      toast.success("Deleted");
+      loadRequests();
+    } catch {
+      toast.error("Delete failed");
+    }
+  };
+
   return (
-    <div className="table-box">
+    <div className="page">
       <h2>Client Requests</h2>
 
-      <table>
+      <table className="table">
         <thead>
           <tr>
             <th>Client</th>
-            <th>Chat</th>
+            <th>Action</th>
           </tr>
         </thead>
 
         <tbody>
-          {clients.map((c) => (
-            <tr key={c.id}>
-              <td>{c.username}</td>
+          {requests.map((r) => (
+            <tr key={r.id}>
+              <td>{r.client.username}</td>
               <td>
-                <button onClick={() => navigate(`/chat/${c.id}`)}>
-                  Chat
+                <button
+                  className="btn"
+                  onClick={() => approve(r.id, r.client.id)}
+                >
+                  Approve & Chat
+                </button>
+
+                <button
+                  className="btn danger"
+                  onClick={() => reject(r.id)}
+                >
+                  Delete
                 </button>
               </td>
             </tr>

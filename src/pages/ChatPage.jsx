@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 
 export default function ChatPage() {
+  const [msg, setMsg] = useState("");
   const [messages, setMessages] = useState([]);
-  const [text, setText] = useState("");
 
   const send = () => {
-    if (!text) return;
-    setMessages([...messages, { text, me: true }]);
-    setText("");
+    if (!msg) return;
+    setMessages([...messages, { text: msg, me: true }]);
+    setMsg("");
   };
 
   return (
@@ -16,7 +16,7 @@ export default function ChatPage() {
 
       <div className="chat-body">
         {messages.map((m, i) => (
-          <div key={i} className={m.me ? "msg me" : "msg"}>
+          <div key={i} className={m.me ? "chat-me" : "chat-other"}>
             {m.text}
           </div>
         ))}
@@ -24,9 +24,9 @@ export default function ChatPage() {
 
       <div className="chat-input">
         <input
-          placeholder="Type message"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
+          value={msg}
+          onChange={(e) => setMsg(e.target.value)}
+          placeholder="Type a message"
         />
         <button onClick={send}>Send</button>
       </div>
