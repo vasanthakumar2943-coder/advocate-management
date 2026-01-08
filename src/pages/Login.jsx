@@ -2,10 +2,11 @@ import React, { useState } from "react";
 import axios from "axios";
 
 /* =====================================================
-   AXIOS BASE CONFIG (UPGRADE)
+   AXIOS BASE CONFIG (FIXED – LOGIC UNCHANGED)
    ===================================================== */
 const API = axios.create({
-  baseURL: "https://web-production-d827.up.railway.app/api",
+  baseURL: "https://web-production-d827.up.railway.app/api/",
+  withCredentials: false, // ✅ JWT only
 });
 
 export default function Login() {
@@ -22,7 +23,7 @@ export default function Login() {
       // ======================
       // GET JWT TOKEN
       // ======================
-      const tokenRes = await API.post("/auth/login/", {
+      const tokenRes = await API.post("auth/login/", {
         username,
         password,
       });
@@ -30,7 +31,7 @@ export default function Login() {
       const access = tokenRes.data.access;
       const refresh = tokenRes.data.refresh;
 
-      // ✅ STORE TOKENS (UPGRADE – DO NOT CHANGE LOGIC)
+      // ✅ STORE TOKENS (UNCHANGED)
       localStorage.setItem("access", access);
       localStorage.setItem("refresh", refresh);
       localStorage.setItem("username", username);
@@ -38,7 +39,7 @@ export default function Login() {
       // ======================
       // GET USER DETAILS
       // ======================
-      const meRes = await API.get("/auth/me/", {
+      const meRes = await API.get("auth/me/", {
         headers: {
           Authorization: `Bearer ${access}`,
         },
