@@ -4,54 +4,35 @@ import axios from "axios";
 
 export default function ChatPage() {
   const { appointmentId } = useParams();
-
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
 
-  const token =
-    localStorage.getItem("access") || localStorage.getItem("token");
+  const token = localStorage.getItem("access");
   const username = localStorage.getItem("username");
 
-  const API = "https://web-production-d827.up.railway.app";
+  const API = "https://web-production-d827.up.railway.app/api";
 
-  // ===========================
-  // FETCH MESSAGES (POLLING)
-  // ===========================
   useEffect(() => {
     if (!token) return;
 
-    const fetchMessages = async () => {
-      const res = await axios.get(
-        `${API}/api/chat/${appointmentId}/`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      setMessages(res.data || []);
-    };
-
-    fetchMessages();
-    const interval = setInterval(fetchMessages, 2000); // 🔁 every 2 sec
+    const interval = setInterval(() => {
+      axios
+        .get(`${API}/chat/${appointmentId}/`, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .then(res => setMessages(res.data));
+    }, 2000);
 
     return () => clearInterval(interval);
   }, [appointmentId, token]);
 
-  // ===========================
-  // SEND MESSAGE
-  // ===========================
-  const sendMessage = async () => {
+  const sendMessage = () => {
     if (!text.trim()) return;
 
-    await axios.post(
-      `${API}/api/chat/${appointmentId}/`,
+    axios.post(
+      `${API}/chat/${appointmentId}/`,
       { message: text },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
+      { headers: { Authorization: `Bearer ${token}` } }
     );
 
     setText("");
@@ -62,9 +43,9 @@ export default function ChatPage() {
       <div className="chat-header">Chat</div>
 
       <div className="chat-messages">
-        {messages.map((m) => (
+        {messages.map((m, i) => (
           <div
-            key={m.id}
+            key={i}
             className={`chat-bubble ${
               m.sender === username ? "me" : "other"
             }`}
@@ -78,7 +59,7 @@ export default function ChatPage() {
         <input
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder="Type message"
+          placeholder="Type a message"
         />
         <button onClick={sendMessage}>Send</button>
       </div>
