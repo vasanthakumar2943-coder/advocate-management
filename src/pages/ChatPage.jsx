@@ -116,7 +116,7 @@ export default function ChatPage() {
 
   return (
     <>
-      <Navbar />
+     
 
       <div className="chat-container">
         <div className="chat-header">
