@@ -1,19 +1,40 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import API from "../api/api";
 import { useParams } from "react-router-dom";
-import ChatWindow from "../components/ChatWindow";
 
 export default function ChatPage() {
-  // ✅ READ FROM URL: /chat/:appointmentId
-  const { appointmentId } = useParams();
+  const { userId } = useParams();
+  const [messages, setMessages] = useState([]);
+  const [text, setText] = useState("");
 
-  // 🔐 Safety check
-  if (!appointmentId) {
-    return <p>Invalid chat session</p>;
-  }
+  useEffect(() => {
+    API.get(`chat/${userId}/`).then(res => setMessages(res.data));
+  }, [userId]);
+
+  const sendMessage = async () => {
+    const res = await API.post(`chat/${userId}/`, { text });
+    setMessages([...messages, res.data]);
+    setText("");
+  };
 
   return (
-    <div style={{ height: "100vh" }}>
-      <ChatWindow appointmentId={appointmentId} />
+    <div className="chat-container">
+      <div className="chat-messages">
+        {messages.map((m, i) => (
+          <div key={i} className={m.mine ? "chat-me" : "chat-other"}>
+            {m.text}
+          </div>
+        ))}
+      </div>
+
+      <div className="chat-input">
+        <input
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Type a message"
+        />
+        <button onClick={sendMessage}>Send</button>
+      </div>
     </div>
   );
 }

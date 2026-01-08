@@ -88,7 +88,7 @@ export default function ClientDashboard() {
 
   return (
     <>
-      <Navbar />
+      
 
       <div className="page">
         <h2>Client Dashboard</h2>

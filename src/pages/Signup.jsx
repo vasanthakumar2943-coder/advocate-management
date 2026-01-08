@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 
 /* =====================================================
-   AXIOS BASE CONFIG (FIXED – NO LOGIC CHANGE)
+   AXIOS BASE CONFIG (CORRECT)
    ===================================================== */
 const API = axios.create({
   baseURL: "https://web-production-d827.up.railway.app/api/",
@@ -21,7 +21,8 @@ export default function Signup() {
     }
 
     try {
-      await API.post("auth/signup/", {
+      // ✅ CORRECT URL
+      await API.post("signup/", {
         username,
         password,
         role,

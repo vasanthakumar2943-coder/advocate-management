@@ -1,77 +1,60 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { toast } from "react-toastify";
 
-/* =====================================================
-   AXIOS BASE CONFIG (LOGIC UNCHANGED)
-   ===================================================== */
 const API = axios.create({
   baseURL: "https://web-production-d827.up.railway.app/api/",
-  withCredentials: false, // JWT only
 });
 
 export default function Login() {
+  const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
   const login = async () => {
     if (!username || !password) {
-      alert("Enter username and password");
+      toast.warning("Enter username and password");
       return;
     }
 
     try {
-      // ======================
-      // GET JWT TOKEN
-      // ======================
-      const tokenRes = await API.post("auth/login/", {
+      // ✅ CORRECT LOGIN API (NO auth/)
+      const res = await API.post("login/", {
         username,
         password,
       });
 
-      const access = tokenRes.data.access;
-      const refresh = tokenRes.data.refresh;
+      // Save tokens
+      localStorage.setItem("access", res.data.access);
+      localStorage.setItem("refresh", res.data.refresh);
 
-      // STORE TOKENS
-      localStorage.setItem("access", access);
-      localStorage.setItem("refresh", refresh);
-      localStorage.setItem("username", username);
-
-      // ======================
-      // GET USER DETAILS
-      // ======================
-      const meRes = await API.get("auth/me/", {
+      // Get user details
+      const me = await API.get("me/", {
         headers: {
-          Authorization: `Bearer ${access}`,
+          Authorization: `Bearer ${res.data.access}`,
         },
       });
 
-      const { role, status } = meRes.data;
-      localStorage.setItem("role", role);
+      localStorage.setItem("role", me.data.role);
 
-      // ======================
-      // ROLE BASED REDIRECT
-      // ======================
-      if (role === "admin") {
-        window.location.href = "/admin";
-        return;
+      toast.success("Login successful");
+
+      // Role-based redirect
+      if (me.data.role === "admin") {
+        navigate("/admin-dashboard");
+      } else if (me.data.role === "advocate") {
+        navigate("/advocate-dashboard");
+      } else {
+        navigate("/client-dashboard");
       }
 
-      if (role === "client") {
-        window.location.href = "/client";
-        return;
-      }
-
-      if (role === "advocate") {
-        if (status === "pending") {
-          alert("Waiting for admin approval");
-          return;
-        }
-        window.location.href = "/advocate";
-        return;
-      }
     } catch (err) {
-      console.error(err);
-      alert("Invalid username or password");
+      if (err.response?.status === 403) {
+        toast.error("Advocate account pending admin approval");
+      } else {
+        toast.error("Invalid username or password");
+      }
     }
   };
 
@@ -94,8 +77,19 @@ export default function Login() {
 
       <button onClick={login}>Login</button>
 
-      <p>
-        Don’t have an account? <a href="/signup">Sign up</a>
+      {/* Signup link */}
+      <p style={{ marginTop: "12px", textAlign: "center" }}>
+        Don’t have an account?{" "}
+        <span
+          style={{
+            color: "blue",
+            cursor: "pointer",
+            textDecoration: "underline",
+          }}
+          onClick={() => navigate("/signup")}
+        >
+          Sign up
+        </span>
       </p>
     </div>
   );

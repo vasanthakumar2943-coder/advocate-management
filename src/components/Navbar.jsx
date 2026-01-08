@@ -7,17 +7,25 @@ export default function Navbar() {
 
   const logout = () => {
     localStorage.clear();
-    navigate("/");
+    navigate("/login"); // ✅ FIXED
   };
 
   return (
     <div className="navbar">
-      <strong>Advocate Management</strong>
+      {/* LEFT */}
+      <div className="navbar-left">
+        <strong className="app-title">Advocate Management</strong>
+      </div>
 
-      <div>
-        <span>{role}</span>
-        <span style={{ margin: "0 10px" }}>🔔</span>
-        <button onClick={logout}>Logout</button>
+      {/* RIGHT */}
+      <div className="navbar-right">
+        <span className="role-badge">{role}</span>
+
+        <span className="notification">🔔</span>
+
+        <button className="logout-btn" onClick={logout}>
+          Logout
+        </button>
       </div>
     </div>
   );
