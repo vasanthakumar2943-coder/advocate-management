@@ -2,28 +2,39 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Navbar from "../components/Navbar";
 
+/* =====================================================
+   AXIOS BASE CONFIG (UPGRADE ONLY)
+   ===================================================== */
+const API = axios.create({
+  baseURL: "https://web-production-d827.up.railway.app/api",
+});
+
 export default function AdminDashboard() {
   const [advocates, setAdvocates] = useState([]);
-  const token = localStorage.getItem("token");
+
+  // ✅ USE NEW TOKEN KEY (UPGRADE)
+  const token = localStorage.getItem("access");
 
   useEffect(() => {
-    if (!token) return;
+    if (!token) {
+      window.location.href = "/login";
+      return;
+    }
 
-    axios
-      .get("http://127.0.0.1:8000/api/pending-advocates/", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+    API.get("/admin/pending-advocates/", {
+      headers: { Authorization: `Bearer ${token}` },
+    })
       .then((res) => setAdvocates(res.data))
       .catch((err) => console.error(err));
   }, [token]);
 
   // =====================
-  // APPROVE ADVOCATE
+  // APPROVE ADVOCATE (UNCHANGED LOGIC)
   // =====================
   const approve = async (id) => {
     try {
-      await axios.post(
-        `http://127.0.0.1:8000/api/approve/${id}/`,
+      await API.post(
+        `/admin/approve-advocate/${id}/`,
         {},
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -39,18 +50,15 @@ export default function AdminDashboard() {
   };
 
   // =====================
-  // DELETE ADVOCATE
+  // DELETE ADVOCATE (UNCHANGED LOGIC)
   // =====================
   const remove = async (id) => {
     if (!window.confirm("Delete this advocate?")) return;
 
     try {
-      await axios.delete(
-        `http://127.0.0.1:8000/api/delete-advocate/${id}/`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      await API.delete(`/admin/delete-advocate/${id}/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       // remove from UI
       setAdvocates((prev) => prev.filter((a) => a.id !== id));
@@ -62,6 +70,8 @@ export default function AdminDashboard() {
 
   return (
     <>
+      
+
       <div className="page">
         <h2>Admin Dashboard</h2>
 

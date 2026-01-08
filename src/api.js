@@ -1,15 +1,25 @@
-import axios from "axios";
+const API_BASE = "https://web-production-d827.up.railway.app/api";
 
-const api = axios.create({
-  baseURL: "http://127.0.0.1:8000",
-});
+export async function apiRequest(url, options = {}) {
+  const token = localStorage.getItem("access");
 
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  const headers = {
+    "Content-Type": "application/json",
+    ...(token && { Authorization: `Bearer ${token}` }),
+    ...options.headers,
+  };
+
+  const response = await fetch(`${API_BASE}${url}`, {
+    ...options,
+    headers,
+  });
+
+  if (response.status === 401) {
+    localStorage.removeItem("access");
+    localStorage.removeItem("refresh");
+    window.location.href = "/login";
+    return;
   }
-  return config;
-});
 
-export default api;
+  return response.json();
+}

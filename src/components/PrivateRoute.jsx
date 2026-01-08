@@ -2,11 +2,15 @@ import React from "react";
 import { Navigate } from "react-router-dom";
 
 export default function PrivateRoute({ children, role }) {
-  const token = localStorage.getItem("token");
+  // ✅ USE UPDATED TOKEN KEY
+  const token = localStorage.getItem("access");
   const userRole = localStorage.getItem("role");
 
-  if (!token) return <Navigate to="/" />;
-  if (role && role !== userRole) return <Navigate to="/" />;
+  // 🔐 NOT LOGGED IN
+  if (!token) return <Navigate to="/login" />;
+
+  // 🔐 ROLE RESTRICTION (UNCHANGED LOGIC)
+  if (role && role !== userRole) return <Navigate to="/login" />;
 
   return children;
 }

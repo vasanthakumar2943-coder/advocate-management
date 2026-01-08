@@ -3,16 +3,24 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import React from "react";
 
+/* =====================================================
+   AXIOS BASE CONFIG (UPGRADE ONLY)
+   ===================================================== */
+const API = axios.create({
+  baseURL: "https://web-production-d827.up.railway.app/api",
+});
+
 export default function AdvocateDashboard() {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // ✅ CORRECT TOKEN
-  const token = localStorage.getItem("token");
+  // ✅ USE NEW TOKEN KEY (UPGRADE)
+  const token = localStorage.getItem("access");
 
   useEffect(() => {
     if (!token) {
       toast.error("Please login again");
+      window.location.href = "/login";
       setLoading(false);
       return;
     }
@@ -28,16 +36,13 @@ export default function AdvocateDashboard() {
     try {
       setLoading(true);
 
-      const res = await axios.get(
-        "http://127.0.0.1:8000/api/appointments/my/",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const res = await API.get("/advocate/my-appointments/", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-      // ✅ IGNORE DUPLICATES
+      // ✅ IGNORE DUPLICATES (UNCHANGED)
       const seen = new Set();
       const unique = [];
 
@@ -54,6 +59,7 @@ export default function AdvocateDashboard() {
 
       if (err.response?.status === 401) {
         toast.error("Session expired. Please login again.");
+        window.location.href = "/login";
       } else {
         toast.error("Failed to load appointments");
       }
@@ -63,12 +69,12 @@ export default function AdvocateDashboard() {
   };
 
   // ============================
-  // APPROVE APPOINTMENT
+  // APPROVE APPOINTMENT (UNCHANGED)
   // ============================
   const approve = async (id) => {
     try {
-      await axios.post(
-        `http://127.0.0.1:8000/api/approve-appointment/${id}/`,
+      await API.post(
+        `/advocate/approve-appointment/${id}/`,
         {},
         {
           headers: {
@@ -86,20 +92,17 @@ export default function AdvocateDashboard() {
   };
 
   // ============================
-  // DELETE APPOINTMENT
+  // DELETE APPOINTMENT (UNCHANGED)
   // ============================
   const remove = async (id) => {
     if (!window.confirm("Delete this appointment?")) return;
 
     try {
-      await axios.delete(
-        `http://127.0.0.1:8000/api/appointments/delete/${id}/`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      await API.delete(`/appointments/delete/${id}/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       toast.success("Appointment deleted");
       fetchApps();

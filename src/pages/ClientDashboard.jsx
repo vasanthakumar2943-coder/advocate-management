@@ -5,36 +5,45 @@ import Navbar from "../components/Navbar";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
+/* =====================================================
+   AXIOS BASE CONFIG (UPGRADE ONLY)
+   ===================================================== */
+const API = axios.create({
+  baseURL: "https://web-production-d827.up.railway.app/api",
+});
+
 export default function ClientDashboard() {
   const [advocates, setAdvocates] = useState([]);
   const [appointments, setAppointments] = useState([]);
   const navigate = useNavigate();
 
-  const token = localStorage.getItem("token");
+  // ✅ USE NEW TOKEN KEY
+  const token = localStorage.getItem("access");
 
   useEffect(() => {
+    if (!token) {
+      toast.error("Please login again");
+      window.location.href = "/login";
+      return;
+    }
+
     fetchData();
+    // eslint-disable-next-line
   }, []);
 
   const fetchData = async () => {
     try {
-      const adv = await axios.get(
-        "http://127.0.0.1:8000/api/advocates/",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const adv = await API.get("/advocates/", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-      const apps = await axios.get(
-        "http://127.0.0.1:8000/api/my-appointments/",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const apps = await API.get("/client/my-appointments/", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       setAdvocates(adv.data || []);
       setAppointments(apps.data || []);
@@ -42,17 +51,20 @@ export default function ClientDashboard() {
       if (err.response?.status === 401) {
         toast.error("Session expired. Please login again.");
         localStorage.clear();
-        window.location.href = "/";
+        window.location.href = "/login";
       } else {
         toast.error("Failed to load data");
       }
     }
   };
 
+  // =====================
+  // BOOK APPOINTMENT (UNCHANGED LOGIC)
+  // =====================
   const book = async (id) => {
     try {
-      await axios.post(
-        "http://127.0.0.1:8000/api/book-appointment/",
+      await API.post(
+        "/client/book-appointment/",
         {
           advocate_id: id,
           date: "2026-01-10",

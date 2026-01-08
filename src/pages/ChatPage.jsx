@@ -11,22 +11,27 @@ export default function ChatPage() {
   const [typing, setTyping] = useState("");
   const [status, setStatus] = useState("offline");
 
-  const token = localStorage.getItem("token");
+  // ✅ UPDATED STORAGE KEYS
+  const token = localStorage.getItem("access");
   const username = localStorage.getItem("username");
 
   /* ===========================
      CONNECT WEBSOCKET (SAFE)
   =========================== */
   useEffect(() => {
-    if (!token) return;
+    if (!token) {
+      window.location.href = "/login";
+      return;
+    }
 
     // 🔥 PREVENT DOUBLE CONNECTION
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
       return;
     }
 
+    // ✅ WSS FOR RAILWAY
     const ws = new WebSocket(
-      `ws://127.0.0.1:8000/ws/chat/${appointmentId}/?token=${token}`
+      `wss://web-production-d827.up.railway.app/ws/chat/${appointmentId}/?token=${token}`
     );
 
     wsRef.current = ws;
@@ -64,7 +69,7 @@ export default function ChatPage() {
   }, [appointmentId, token, username]);
 
   /* ===========================
-     SEND MESSAGE
+     SEND MESSAGE (UNCHANGED)
   =========================== */
   const sendMessage = () => {
     if (!text.trim()) return;
@@ -79,7 +84,7 @@ export default function ChatPage() {
       message: text,
     };
 
-    // ✅ INSTANT UI UPDATE (WhatsApp style)
+    // ✅ INSTANT UI UPDATE
     setMessages((prev) => [...prev, msg]);
 
     wsRef.current.send(JSON.stringify(msg));

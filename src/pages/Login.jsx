@@ -1,6 +1,13 @@
 import React, { useState } from "react";
 import axios from "axios";
 
+/* =====================================================
+   AXIOS BASE CONFIG (UPGRADE)
+   ===================================================== */
+const API = axios.create({
+  baseURL: "https://web-production-d827.up.railway.app/api",
+});
+
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -15,35 +22,34 @@ export default function Login() {
       // ======================
       // GET JWT TOKEN
       // ======================
-      const tokenRes = await axios.post(
-        "http://127.0.0.1:8000/api/token/",
-        { username, password }
-      );
+      const tokenRes = await API.post("/auth/login/", {
+        username,
+        password,
+      });
 
-      const token = tokenRes.data.access;
+      const access = tokenRes.data.access;
+      const refresh = tokenRes.data.refresh;
 
-      // ✅ STORE TOKEN (SINGLE SOURCE OF TRUTH)
-      localStorage.setItem("token", token);
+      // ✅ STORE TOKENS (UPGRADE – DO NOT CHANGE LOGIC)
+      localStorage.setItem("access", access);
+      localStorage.setItem("refresh", refresh);
       localStorage.setItem("username", username);
 
       // ======================
       // GET USER DETAILS
       // ======================
-      const meRes = await axios.get(
-        "http://127.0.0.1:8000/api/me/",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const meRes = await API.get("/auth/me/", {
+        headers: {
+          Authorization: `Bearer ${access}`,
+        },
+      });
 
       const { role, status } = meRes.data;
 
       localStorage.setItem("role", role);
 
       // ======================
-      // ROLE BASED REDIRECT
+      // ROLE BASED REDIRECT (UNCHANGED)
       // ======================
       if (role === "admin") {
         window.location.href = "/admin";
