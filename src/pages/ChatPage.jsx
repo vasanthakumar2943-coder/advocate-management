@@ -5,31 +5,29 @@ import Navbar from "../components/Navbar";
 export default function ChatPage() {
   const { appointmentId } = useParams();
   const wsRef = useRef(null);
+  const typingTimeout = useRef(null);
 
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
   const [typing, setTyping] = useState("");
   const [status, setStatus] = useState("offline");
 
-  // ✅ UPDATED STORAGE KEYS
-  const token = localStorage.getItem("access");
+  // ✅ SAFE TOKEN READ (DO NOT BREAK OTHER PAGES)
+  const token =
+    localStorage.getItem("access") || localStorage.getItem("token");
   const username = localStorage.getItem("username");
 
   /* ===========================
-     CONNECT WEBSOCKET (SAFE)
+     CONNECT WEBSOCKET (FIXED)
   =========================== */
   useEffect(() => {
     if (!token) {
-      window.location.href = "/login";
+      window.location.href = "/";
       return;
     }
 
-    // 🔥 PREVENT DOUBLE CONNECTION
-    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-      return;
-    }
+    if (wsRef.current) return;
 
-    // ✅ WSS FOR RAILWAY
     const ws = new WebSocket(
       `wss://web-production-d827.up.railway.app/ws/chat/${appointmentId}/?token=${token}`
     );
@@ -44,8 +42,19 @@ export default function ChatPage() {
     ws.onmessage = (e) => {
       const data = JSON.parse(e.data);
 
+      // ✅ PREVENT DUPLICATES
       if (data.message) {
-        setMessages((prev) => [...prev, data]);
+        setMessages((prev) => {
+          const last = prev[prev.length - 1];
+          if (
+            last &&
+            last.message === data.message &&
+            last.sender === data.sender
+          ) {
+            return prev;
+          }
+          return [...prev, data];
+        });
         setTyping("");
       }
 
@@ -64,12 +73,11 @@ export default function ChatPage() {
       wsRef.current = null;
     };
 
-    // 🚫 DO NOT CLOSE SOCKET IN CLEANUP (STRICTMODE FIX)
     return () => {};
   }, [appointmentId, token, username]);
 
   /* ===========================
-     SEND MESSAGE (UNCHANGED)
+     SEND MESSAGE (FIXED)
   =========================== */
   const sendMessage = () => {
     if (!text.trim()) return;
@@ -84,19 +92,26 @@ export default function ChatPage() {
       message: text,
     };
 
-    // ✅ INSTANT UI UPDATE
-    setMessages((prev) => [...prev, msg]);
-
+    // ❌ DO NOT ADD LOCALLY (SERVER WILL ECHO)
     wsRef.current.send(JSON.stringify(msg));
     setText("");
   };
 
+  /* ===========================
+     TYPING INDICATOR (THROTTLED)
+  =========================== */
   const sendTyping = () => {
-    if (wsRef.current?.readyState === WebSocket.OPEN) {
-      wsRef.current.send(
-        JSON.stringify({ typing: true, sender: username })
-      );
-    }
+    if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) return;
+
+    if (typingTimeout.current) return;
+
+    wsRef.current.send(
+      JSON.stringify({ typing: true, sender: username })
+    );
+
+    typingTimeout.current = setTimeout(() => {
+      typingTimeout.current = null;
+    }, 800);
   };
 
   return (
