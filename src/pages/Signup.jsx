@@ -1,12 +1,11 @@
 import React, { useState } from "react";
 import axios from "axios";
 
-/* =====================================================
-   AXIOS BASE CONFIG (CORRECT)
-   ===================================================== */
+/* ================================
+   AXIOS CONFIG (FINAL)
+================================ */
 const API = axios.create({
   baseURL: "https://web-production-d827.up.railway.app/api/",
-  withCredentials: false, // JWT only
 });
 
 export default function Signup() {
@@ -21,7 +20,7 @@ export default function Signup() {
     }
 
     try {
-      // ✅ CORRECT URL
+      // ✅ EXACT BACKEND ROUTE
       await API.post("signup/", {
         username,
         password,
@@ -31,10 +30,12 @@ export default function Signup() {
       alert("Signup successful. Please login.");
       window.location.href = "/login";
     } catch (err) {
+      console.error(err);
+
       if (err.response?.status === 400) {
-        alert("Username already exists. Try another.");
+        alert("Username already exists");
       } else {
-        alert("Signup failed. Server error.");
+        alert("Signup failed. Check backend.");
       }
     }
   };
@@ -45,16 +46,18 @@ export default function Signup() {
 
       <input
         placeholder="Username"
+        value={username}
         onChange={(e) => setUsername(e.target.value)}
       />
 
       <input
         type="password"
         placeholder="Password"
+        value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
 
-      <select onChange={(e) => setRole(e.target.value)}>
+      <select value={role} onChange={(e) => setRole(e.target.value)}>
         <option value="client">Client</option>
         <option value="advocate">Advocate</option>
       </select>
