@@ -1,111 +1,70 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import axios from "axios";
 
 export default function ChatPage() {
   const { appointmentId } = useParams();
-  const wsRef = useRef(null);
-  const typingTimeout = useRef(null);
 
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
-  const [typing, setTyping] = useState("");
-  const [status, setStatus] = useState("offline");
 
-  // ✅ SAFE TOKEN
   const token =
     localStorage.getItem("access") || localStorage.getItem("token");
   const username = localStorage.getItem("username");
 
-  /* ===========================
-     CONNECT WEBSOCKET
-  =========================== */
+  const API = "https://web-production-d827.up.railway.app";
+
+  // ===========================
+  // FETCH MESSAGES (POLLING)
+  // ===========================
   useEffect(() => {
     if (!token) return;
-    if (wsRef.current) return;
 
-    const ws = new WebSocket(
-      `wss://web-production-d827.up.railway.app/ws/chat/${appointmentId}/?token=${token}`
-    );
-
-    wsRef.current = ws;
-
-    ws.onopen = () => {
-      console.log("✅ WS connected");
-      setStatus("online");
+    const fetchMessages = async () => {
+      const res = await axios.get(
+        `${API}/api/chat/${appointmentId}/`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setMessages(res.data || []);
     };
 
-    ws.onmessage = (e) => {
-      const data = JSON.parse(e.data);
+    fetchMessages();
+    const interval = setInterval(fetchMessages, 2000); // 🔁 every 2 sec
 
-      if (data.message) {
-        setMessages((prev) => [...prev, data]);
-        setTyping("");
-      }
+    return () => clearInterval(interval);
+  }, [appointmentId, token]);
 
-      if (data.typing && data.sender !== username) {
-        setTyping(`${data.sender} is typing...`);
-      }
-    };
-
-    ws.onerror = (e) => {
-      console.error("❌ WS error", e);
-    };
-
-    ws.onclose = () => {
-      console.log("⚠️ WS closed");
-      setStatus("offline");
-      wsRef.current = null;
-    };
-
-    return () => {};
-  }, [appointmentId, token, username]);
-
-  /* ===========================
-     SEND MESSAGE ✅ FIXED
-  =========================== */
-  const sendMessage = () => {
+  // ===========================
+  // SEND MESSAGE
+  // ===========================
+  const sendMessage = async () => {
     if (!text.trim()) return;
-    if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) return;
 
-    // ❌ sender removed
-    wsRef.current.send(
-      JSON.stringify({ message: text })
+    await axios.post(
+      `${API}/api/chat/${appointmentId}/`,
+      { message: text },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
     );
 
     setText("");
   };
 
-  /* ===========================
-     TYPING INDICATOR ✅ FIXED
-  =========================== */
-  const sendTyping = () => {
-    if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) return;
-    if (typingTimeout.current) return;
-
-    // ❌ sender removed
-    wsRef.current.send(JSON.stringify({ typing: true }));
-
-    typingTimeout.current = setTimeout(() => {
-      typingTimeout.current = null;
-    }, 800);
-  };
-
   return (
     <div className="chat-container">
-      <div className="chat-header">
-        <div>
-          <span className={`status-dot ${status}`} />
-          Chat
-        </div>
-        <button className="chat-close" onClick={() => window.history.back()}>
-          ✕
-        </button>
-      </div>
+      <div className="chat-header">Chat</div>
 
       <div className="chat-messages">
-        {messages.map((m, i) => (
+        {messages.map((m) => (
           <div
-            key={i}
+            key={m.id}
             className={`chat-bubble ${
               m.sender === username ? "me" : "other"
             }`}
@@ -113,15 +72,13 @@ export default function ChatPage() {
             {m.message}
           </div>
         ))}
-        {typing && <div className="typing">{typing}</div>}
       </div>
 
       <div className="chat-input">
         <input
           value={text}
           onChange={(e) => setText(e.target.value)}
-          onKeyDown={sendTyping}
-          placeholder="Type a message"
+          placeholder="Type message"
         />
         <button onClick={sendMessage}>Send</button>
       </div>
