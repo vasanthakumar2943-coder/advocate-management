@@ -1,27 +1,22 @@
-import React, { useEffect, useState } from "react";
-import API from "../api/api";
-import { useParams } from "react-router-dom";
+import React, { useState } from "react";
 
 export default function ChatPage() {
-  const { userId } = useParams();
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
 
-  useEffect(() => {
-    API.get(`chat/${userId}/`).then(res => setMessages(res.data));
-  }, [userId]);
-
-  const sendMessage = async () => {
-    const res = await API.post(`chat/${userId}/`, { text });
-    setMessages([...messages, res.data]);
+  const send = () => {
+    if (!text) return;
+    setMessages([...messages, { text, me: true }]);
     setText("");
   };
 
   return (
     <div className="chat-container">
-      <div className="chat-messages">
+      <div className="chat-header">Chat</div>
+
+      <div className="chat-body">
         {messages.map((m, i) => (
-          <div key={i} className={m.mine ? "chat-me" : "chat-other"}>
+          <div key={i} className={m.me ? "msg me" : "msg"}>
             {m.text}
           </div>
         ))}
@@ -29,11 +24,11 @@ export default function ChatPage() {
 
       <div className="chat-input">
         <input
+          placeholder="Type message"
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder="Type a message"
         />
-        <button onClick={sendMessage}>Send</button>
+        <button onClick={send}>Send</button>
       </div>
     </div>
   );
