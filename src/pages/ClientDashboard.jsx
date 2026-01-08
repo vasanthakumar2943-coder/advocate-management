@@ -1,15 +1,15 @@
+import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import Navbar from "../components/Navbar";
-import React from "react";
 import { useNavigate } from "react-router-dom";
+import Navbar from "../components/Navbar";
 
 /* =====================================================
-   AXIOS BASE CONFIG (UPGRADE ONLY)
+   AXIOS BASE CONFIG (FIXED – NO LOGIC CHANGE)
    ===================================================== */
 const API = axios.create({
-  baseURL: "https://web-production-d827.up.railway.app/api",
+  baseURL: "https://web-production-d827.up.railway.app/api/",
+  withCredentials: false,
 });
 
 export default function ClientDashboard() {
@@ -17,7 +17,6 @@ export default function ClientDashboard() {
   const [appointments, setAppointments] = useState([]);
   const navigate = useNavigate();
 
-  // ✅ USE NEW TOKEN KEY
   const token = localStorage.getItem("access");
 
   useEffect(() => {
@@ -31,22 +30,25 @@ export default function ClientDashboard() {
     // eslint-disable-next-line
   }, []);
 
+  /* ===============================
+     FETCH ADVOCATES + APPOINTMENTS
+     =============================== */
   const fetchData = async () => {
     try {
-      const adv = await API.get("/advocates/", {
+      const advRes = await API.get("advocates/", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
-      const apps = await API.get("/client/my-appointments/", {
+      const appRes = await API.get("client/my-appointments/", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
-      setAdvocates(adv.data || []);
-      setAppointments(apps.data || []);
+      setAdvocates(advRes.data || []);
+      setAppointments(appRes.data || []);
     } catch (err) {
       if (err.response?.status === 401) {
         toast.error("Session expired. Please login again.");
@@ -58,13 +60,13 @@ export default function ClientDashboard() {
     }
   };
 
-  // =====================
-  // BOOK APPOINTMENT (UNCHANGED LOGIC)
-  // =====================
-  const book = async (id) => {
+  /* ===============================
+     BOOK APPOINTMENT
+     =============================== */
+  const bookAppointment = async (id) => {
     try {
       await API.post(
-        "/client/book-appointment/",
+        "client/book-appointment/",
         {
           advocate_id: id,
           date: "2026-01-10",
@@ -78,7 +80,7 @@ export default function ClientDashboard() {
       );
 
       toast.success("Appointment request sent");
-      fetchData(); // 🔁 refresh status
+      fetchData();
     } catch (err) {
       toast.error("Failed to book appointment");
     }
@@ -86,13 +88,17 @@ export default function ClientDashboard() {
 
   return (
     <>
-     
+      <Navbar />
 
       <div className="page">
         <h2>Client Dashboard</h2>
 
+        {/* ===============================
+            AVAILABLE ADVOCATES
+           =============================== */}
         <div className="card">
           <h3>Available Advocates</h3>
+
           <table>
             <thead>
               <tr>
@@ -100,6 +106,7 @@ export default function ClientDashboard() {
                 <th>Action</th>
               </tr>
             </thead>
+
             <tbody>
               {advocates.length === 0 && (
                 <tr>
@@ -107,13 +114,13 @@ export default function ClientDashboard() {
                 </tr>
               )}
 
-              {advocates.map((a) => (
-                <tr key={a.id}>
-                  <td>{a.username}</td>
+              {advocates.map((adv) => (
+                <tr key={adv.id}>
+                  <td>{adv.username}</td>
                   <td>
                     <button
                       className="action-btn approve"
-                      onClick={() => book(a.id)}
+                      onClick={() => bookAppointment(adv.id)}
                     >
                       Book
                     </button>
@@ -124,8 +131,12 @@ export default function ClientDashboard() {
           </table>
         </div>
 
+        {/* ===============================
+            MY APPOINTMENTS
+           =============================== */}
         <div className="card">
           <h3>My Appointments</h3>
+
           <table>
             <thead>
               <tr>
@@ -134,6 +145,7 @@ export default function ClientDashboard() {
                 <th>Chat</th>
               </tr>
             </thead>
+
             <tbody>
               {appointments.length === 0 && (
                 <tr>
