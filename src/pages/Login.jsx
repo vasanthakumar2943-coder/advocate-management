@@ -1,17 +1,12 @@
 import React, { useState } from "react";
 import axios from "axios";
-import api from "../api/axios";
-
-api.post("auth/login/", data);
-api.get("auth/me/");
-
 
 /* =====================================================
-   AXIOS BASE CONFIG (FIXED – LOGIC UNCHANGED)
+   AXIOS BASE CONFIG (LOGIC UNCHANGED)
    ===================================================== */
 const API = axios.create({
   baseURL: "https://web-production-d827.up.railway.app/api/",
-  withCredentials: false, // ✅ JWT only
+  withCredentials: false, // JWT only
 });
 
 export default function Login() {
@@ -36,7 +31,7 @@ export default function Login() {
       const access = tokenRes.data.access;
       const refresh = tokenRes.data.refresh;
 
-      // ✅ STORE TOKENS (UNCHANGED)
+      // STORE TOKENS
       localStorage.setItem("access", access);
       localStorage.setItem("refresh", refresh);
       localStorage.setItem("username", username);
@@ -51,11 +46,10 @@ export default function Login() {
       });
 
       const { role, status } = meRes.data;
-
       localStorage.setItem("role", role);
 
       // ======================
-      // ROLE BASED REDIRECT (UNCHANGED)
+      // ROLE BASED REDIRECT
       // ======================
       if (role === "admin") {
         window.location.href = "/admin";
