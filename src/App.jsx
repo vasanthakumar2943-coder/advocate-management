@@ -7,6 +7,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import AdvocateDashboard from "./pages/AdvocateDashboard";
 import ClientDashboard from "./pages/ClientDashboard";
 import ChatPage from "./pages/ChatPage";
+import Chat from "./pages/Chat";
 
 import Navbar from "./components/Navbar";
 
@@ -63,6 +64,7 @@ export default function App() {
             </PrivateRoute>
           }
         />
+        <Route path="/chat/:chatId" element={<Chat />} />
 
         {/* CHAT */}
         <Route

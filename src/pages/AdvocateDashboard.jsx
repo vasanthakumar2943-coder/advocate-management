@@ -61,11 +61,21 @@ export default function AdvocateDashboard() {
                   className="btn"
                   onClick={() => approve(r.id, r.client.id)}
                 >
-                  Approve & Chat
+                  Approve
+                </button>
+
+                {/* ✅ CHAT BUTTON (added only) */}
+                <button
+                  className="btn"
+                  style={{ marginLeft: "10px" }}
+                  onClick={() => navigate(`/chat/${r.client.id}`)}
+                >
+                  Chat
                 </button>
 
                 <button
                   className="btn danger"
+                  style={{ marginLeft: "10px" }}
                   onClick={() => reject(r.id)}
                 >
                   Delete

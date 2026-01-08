@@ -1,60 +1,59 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import API from "../api/api";
 import { toast } from "react-toastify";
-
-const API = axios.create({
-  baseURL: "https://web-production-d827.up.railway.app/api/",
-});
 
 export default function AdminDashboard() {
   const [advocates, setAdvocates] = useState([]);
-
-  const auth = {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("access")}`,
-    },
-  };
-
-  const loadPending = async () => {
-    const res = await API.get("admin/pending-advocates/", auth);
-    setAdvocates(res.data);
-  };
-
-  const approve = async (id) => {
-    await API.post(`admin/approve-advocate/${id}/`, {}, auth);
-    toast.success("Advocate approved");
-    loadPending();
-  };
-
-  const remove = async (id) => {
-    await API.delete(`admin/delete-advocate/${id}/`, auth);
-    toast.success("Advocate deleted");
-    loadPending();
-  };
 
   useEffect(() => {
     loadPending();
   }, []);
 
+  const loadPending = async () => {
+    try {
+      const res = await API.get("users/admin/pending-advocates/");
+      setAdvocates(res.data);
+    } catch {
+      toast.error("Failed to load requests");
+    }
+  };
+
+  const approve = async (id) => {
+    try {
+      await API.post(`users/admin/approve-advocate/${id}/`);
+      toast.success("Advocate approved");
+      loadPending();
+    } catch {
+      toast.error("Approval failed");
+    }
+  };
+
   return (
-    <div className="table-box">
+    <div className="page">
       <h2>Pending Advocate Requests</h2>
 
-      <table>
+      <table className="table">
         <thead>
           <tr>
-            <th>Username</th>
-            <th>Actions</th>
+            <th>Name</th>
+            <th>Action</th>
           </tr>
         </thead>
 
         <tbody>
+          {advocates.length === 0 && (
+            <tr>
+              <td colSpan="2">No pending requests</td>
+            </tr>
+          )}
+
           {advocates.map((a) => (
             <tr key={a.id}>
               <td>{a.username}</td>
               <td>
-                <button onClick={() => approve(a.id)}>Approve</button>
-                <button onClick={() => remove(a.id)}>Delete</button>
+                <button className="btn" onClick={() => approve(a.id)}>
+                  Approve
+                </button>
               </td>
             </tr>
           ))}

@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import API from "../api/api";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 export default function ClientDashboard() {
   const [advocates, setAdvocates] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     loadAdvocates();
@@ -59,6 +61,15 @@ export default function ClientDashboard() {
                   onClick={() => bookAdvocate(a.id)}
                 >
                   Book
+                </button>
+
+                {/* ✅ CHAT BUTTON (added only) */}
+                <button
+                  className="btn"
+                  style={{ marginLeft: "10px" }}
+                  onClick={() => navigate(`/chat/${a.id}`)}
+                >
+                  Chat
                 </button>
               </td>
             </tr>
