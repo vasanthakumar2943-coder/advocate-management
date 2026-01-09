@@ -3,34 +3,60 @@ import API from "../api/api";
 import { toast } from "react-toastify";
 
 export default function AdminDashboard() {
-  const [advocates, setAdvocates] = useState([]);
+  const [pending, setPending] = useState([]);
+  const [approved, setApproved] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadPending();
+    loadAll();
   }, []);
 
-  const loadPending = async () => {
+  const loadAll = async () => {
+    setLoading(true);
     try {
-      const res = await API.get("users/admin/pending-advocates/");
-      setAdvocates(res.data);
-    } catch {
-      toast.error("Failed to load requests");
+      const [pendingRes, approvedRes] = await Promise.all([
+        API.get("admin/pending-advocates/"),
+        API.get("approved-advocates/"),
+      ]);
+
+      setPending(pendingRes.data);
+      setApproved(approvedRes.data);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to load admin data");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const approve = async (id) => {
+  const approveAdvocate = async (id) => {
     try {
-      await API.post(`users/admin/approve-advocate/${id}/`);
+      await API.post(`admin/approve-advocate/${id}/`);
       toast.success("Advocate approved");
-      loadPending();
+      loadAll(); // 🔄 refresh both tables
     } catch {
       toast.error("Approval failed");
     }
   };
 
+  const deleteAdvocate = async (id) => {
+    try {
+      await API.delete(`admin/delete-advocate/${id}/`);
+      toast.success("Advocate deleted");
+      loadAll();
+    } catch {
+      toast.error("Delete failed");
+    }
+  };
+
   return (
     <div className="page">
-      <h2>Pending Advocate Requests</h2>
+      <h2>Admin Dashboard</h2>
+
+      {/* ===================== */}
+      {/* 🔴 PENDING ADVOCATES */}
+      {/* ===================== */}
+      <h3 style={{ marginTop: "30px" }}>Pending Advocate Requests</h3>
 
       <table className="table">
         <thead>
@@ -41,19 +67,73 @@ export default function AdminDashboard() {
         </thead>
 
         <tbody>
-          {advocates.length === 0 && (
+          {loading && (
+            <tr>
+              <td colSpan="2">Loading...</td>
+            </tr>
+          )}
+
+          {!loading && pending.length === 0 && (
             <tr>
               <td colSpan="2">No pending requests</td>
             </tr>
           )}
 
-          {advocates.map((a) => (
-            <tr key={a.id}>
-              <td>{a.username}</td>
+          {pending.map((u) => (
+            <tr key={u.id}>
+              <td>{u.username}</td>
               <td>
-                <button className="btn" onClick={() => approve(a.id)}>
+                <button
+                  className="btn"
+                  onClick={() => approveAdvocate(u.id)}
+                >
                   Approve
                 </button>
+
+                <button
+                  className="btn"
+                  style={{ marginLeft: "10px" }}
+                  onClick={() => deleteAdvocate(u.id)}
+                >
+                  Delete
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      {/* ===================== */}
+      {/* 🟢 APPROVED ADVOCATES */}
+      {/* ===================== */}
+      <h3 style={{ marginTop: "40px" }}>Approved Advocates</h3>
+
+      <table className="table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {loading && (
+            <tr>
+              <td colSpan="2">Loading...</td>
+            </tr>
+          )}
+
+          {!loading && approved.length === 0 && (
+            <tr>
+              <td colSpan="2">No approved advocates</td>
+            </tr>
+          )}
+
+          {approved.map((u) => (
+            <tr key={u.id}>
+              <td>{u.username}</td>
+              <td style={{ color: "green", fontWeight: "bold" }}>
+                Approved
               </td>
             </tr>
           ))}

@@ -6,8 +6,8 @@ import Signup from "./pages/Signup";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdvocateDashboard from "./pages/AdvocateDashboard";
 import ClientDashboard from "./pages/ClientDashboard";
+import PendingApproval from "./pages/PendingApproval";
 import ChatPage from "./pages/ChatPage";
-import Chat from "./pages/Chat";
 
 import Navbar from "./components/Navbar";
 
@@ -18,8 +18,8 @@ function PrivateRoute({ children, role }) {
   const token = localStorage.getItem("access");
   const userRole = localStorage.getItem("role");
 
-  if (!token) return <Navigate to="/login" />;
-  if (role && userRole !== role) return <Navigate to="/login" />;
+  if (!token) return <Navigate to="/login" replace />;
+  if (role && userRole !== role) return <Navigate to="/login" replace />;
 
   return children;
 }
@@ -30,12 +30,12 @@ export default function App() {
       <Navbar />
 
       <Routes>
-        {/* PUBLIC */}
-        <Route path="/" element={<Navigate to="/login" />} />
+        {/* ================= PUBLIC ================= */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
 
-        {/* ADMIN */}
+        {/* ================= ADMIN ================= */}
         <Route
           path="/admin"
           element={
@@ -45,7 +45,7 @@ export default function App() {
           }
         />
 
-        {/* ADVOCATE */}
+        {/* ================= ADVOCATE ================= */}
         <Route
           path="/advocate"
           element={
@@ -55,7 +55,17 @@ export default function App() {
           }
         />
 
-        {/* CLIENT */}
+        {/* Advocate waiting approval */}
+        <Route
+          path="/pending"
+          element={
+            <PrivateRoute role="advocate">
+              <PendingApproval />
+            </PrivateRoute>
+          }
+        />
+
+        {/* ================= CLIENT ================= */}
         <Route
           path="/client"
           element={
@@ -64,9 +74,8 @@ export default function App() {
             </PrivateRoute>
           }
         />
-        <Route path="/chat/:chatId" element={<Chat />} />
 
-        {/* CHAT */}
+        {/* ================= CHAT (CLIENT ↔ ADVOCATE) ================= */}
         <Route
           path="/chat/:id"
           element={
@@ -75,6 +84,9 @@ export default function App() {
             </PrivateRoute>
           }
         />
+
+        {/* ================= FALLBACK ================= */}
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
   );
