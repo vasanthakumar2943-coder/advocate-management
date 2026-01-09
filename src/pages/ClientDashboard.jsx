@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function ClientDashboard() {
   const [advocates, setAdvocates] = useState([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -14,11 +15,12 @@ export default function ClientDashboard() {
   const loadAdvocates = async () => {
     try {
       const res = await API.get("approved-advocates/");
-
-      
       setAdvocates(res.data);
     } catch (err) {
+      console.error("Advocate load error:", err);
       toast.error("Failed to load advocates");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -28,7 +30,8 @@ export default function ClientDashboard() {
         advocate: advocateId,
       });
       toast.success("Request sent to advocate");
-    } catch {
+    } catch (err) {
+      console.error("Booking error:", err);
       toast.error("Booking failed");
     }
   };
@@ -46,7 +49,13 @@ export default function ClientDashboard() {
         </thead>
 
         <tbody>
-          {advocates.length === 0 && (
+          {loading && (
+            <tr>
+              <td colSpan="2">Loading advocates...</td>
+            </tr>
+          )}
+
+          {!loading && advocates.length === 0 && (
             <tr>
               <td colSpan="2">No advocates available</td>
             </tr>
@@ -63,7 +72,6 @@ export default function ClientDashboard() {
                   Book
                 </button>
 
-                {/* ✅ CHAT BUTTON (added only) */}
                 <button
                   className="btn"
                   style={{ marginLeft: "10px" }}
