@@ -13,7 +13,7 @@ export default function ClientDashboard() {
 
   const loadAdvocates = async () => {
     try {
-      const res = await API.get("users/?role=advocate&status=approved");
+      const res = await API.get("approved-advocates/");
 
       
       setAdvocates(res.data);
