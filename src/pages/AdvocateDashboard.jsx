@@ -12,7 +12,7 @@ export default function AdvocateDashboard() {
     checkApprovalAndLoad();
   }, []);
 
-  // 🔐 Step 1: Check advocate approval
+  // 🔐 Check advocate approval
   const checkApprovalAndLoad = async () => {
     try {
       const me = await API.get("me/");
@@ -22,7 +22,6 @@ export default function AdvocateDashboard() {
         return;
       }
 
-      // 🔔 Show approval notification once
       if (!localStorage.getItem("approved_notified")) {
         toast.success("🎉 Your account has been approved!");
         localStorage.setItem("approved_notified", "true");
@@ -36,7 +35,7 @@ export default function AdvocateDashboard() {
     }
   };
 
-  // 📥 Load client appointment requests
+  // 📥 Load ONLY pending appointments
   const loadRequests = async () => {
     try {
       const res = await API.get("appointments/?status=pending");
@@ -54,6 +53,8 @@ export default function AdvocateDashboard() {
     try {
       await API.post(`appointments/${id}/approve/`);
       toast.success("Client request approved");
+
+      // 👉 After approval → go to chat
       navigate(`/chat/${clientId}`);
     } catch (err) {
       console.error(err);
@@ -102,19 +103,12 @@ export default function AdvocateDashboard() {
             <tr key={r.id}>
               <td>{r.client.username}</td>
               <td>
+                {/* ✅ ONLY pending actions */}
                 <button
                   className="btn"
                   onClick={() => approve(r.id, r.client.id)}
                 >
                   Approve
-                </button>
-
-                <button
-                  className="btn"
-                  style={{ marginLeft: "10px" }}
-                  onClick={() => navigate(`/chat/${r.client.id}`)}
-                >
-                  Chat
                 </button>
 
                 <button

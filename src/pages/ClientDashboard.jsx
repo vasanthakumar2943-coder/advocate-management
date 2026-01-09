@@ -30,6 +30,7 @@ export default function ClientDashboard() {
         advocate: advocateId,
       });
       toast.success("Request sent to advocate");
+      loadAdvocates(); // 🔄 refresh status
     } catch (err) {
       console.error("Booking error:", err);
       toast.error("Booking failed");
@@ -64,21 +65,34 @@ export default function ClientDashboard() {
           {advocates.map((a) => (
             <tr key={a.id}>
               <td>{a.username}</td>
-              <td>
-                <button
-                  className="btn"
-                  onClick={() => bookAdvocate(a.id)}
-                >
-                  Book
-                </button>
 
-                <button
-                  className="btn"
-                  style={{ marginLeft: "10px" }}
-                  onClick={() => navigate(`/chat/${a.id}`)}
-                >
-                  Chat
-                </button>
+              <td>
+                {/* 🟢 NO APPOINTMENT */}
+                {a.appointment_status === "none" && (
+                  <button
+                    className="btn"
+                    onClick={() => bookAdvocate(a.id)}
+                  >
+                    Book
+                  </button>
+                )}
+
+                {/* 🟡 PENDING */}
+                {a.appointment_status === "pending" && (
+                  <span style={{ color: "#888" }}>
+                    Request Pending
+                  </span>
+                )}
+
+                {/* 🔵 APPROVED → CHAT ENABLED */}
+                {a.appointment_status === "approved" && (
+                  <button
+                    className="btn"
+                    onClick={() => navigate(`/chat/${a.id}`)}
+                  >
+                    Chat
+                  </button>
+                )}
               </td>
             </tr>
           ))}
