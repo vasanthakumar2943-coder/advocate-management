@@ -67,33 +67,26 @@ export default function ClientDashboard() {
               <td>{a.username}</td>
 
               <td>
-                {/* 🟢 NO APPOINTMENT */}
-                {a.appointment_status === "none" && (
+                {/* ✅ Book button ALWAYS visible */}
+                <button
+                  className="btn"
+                  onClick={() => bookAdvocate(a.id)}
+                >
+                  Book
+                </button>
+
+                {/* 🔵 Chat button ONLY if backend says allowed */}
+                {a.can_chat && (
                   <button
                     className="btn"
-                    onClick={() => bookAdvocate(a.id)}
-                  >
-                    Book
-                  </button>
-                )}
-
-                {/* 🟡 PENDING */}
-                {a.appointment_status === "pending" && (
-                  <span style={{ color: "#888" }}>
-                    Request Pending
-                  </span>
-                )}
-
-                {/* 🔵 APPROVED → CHAT ENABLED */}
-                {a.appointment_status === "approved" && (
-                  <button
-                    className="btn"
+                    style={{ marginLeft: "10px" }}
                     onClick={() => navigate(`/chat/${a.id}`)}
                   >
                     Chat
                   </button>
                 )}
               </td>
+
             </tr>
           ))}
         </tbody>
