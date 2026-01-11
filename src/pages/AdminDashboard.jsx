@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from "react";
 import API from "../api/api";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom"; // ✅ MISSING IMPORT
 
 export default function AdminDashboard() {
   const [pending, setPending] = useState([]);
   const [approved, setApproved] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const navigate = useNavigate(); // ✅ MISSING
 
   useEffect(() => {
     loadAll();
@@ -23,7 +26,14 @@ export default function AdminDashboard() {
       setApproved(approvedRes.data);
     } catch (err) {
       console.error(err);
-      toast.error("Failed to load admin data");
+
+      // ✅ MISSING: HANDLE 401 PROPERLY
+      if (err.response && err.response.status === 401) {
+        localStorage.clear();
+        navigate("/login");
+      } else {
+        toast.error("Failed to load admin data");
+      }
     } finally {
       setLoading(false);
     }
