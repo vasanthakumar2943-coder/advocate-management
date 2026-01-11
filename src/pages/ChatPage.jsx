@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Chat from "../pages/Chat";
-import "../index.css";
+import "../styles/chat.css";
 
 export default function ChatPage() {
   const navigate = useNavigate();
