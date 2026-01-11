@@ -1,39 +1,49 @@
 import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import axios from "axios";
+import API from "../api/api";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-
-const API = axios.create({
-  baseURL: "https://web-production-d827.up.railway.app/api/",
-});
 
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const login = async () => {
-    if (!username || !password) {
-      toast.error("Enter username & password");
-      return;
-    }
+  const handleLogin = async (e) => {
+    e.preventDefault();
 
     try {
-      const res = await API.post("login/", { username, password });
+      const res = await API.post("login/", {
+        username,
+        password,
+      });
 
+      // ✅ save tokens
       localStorage.setItem("access", res.data.access);
+      localStorage.setItem("refresh", res.data.refresh);
       localStorage.setItem("role", res.data.role);
+      localStorage.setItem("is_approved", res.data.is_approved);
 
       toast.success("Login successful");
 
-      if (res.data.role === "admin") navigate("/admin");
-      if (res.data.role === "advocate") navigate("/advocate");
-      if (res.data.role === "client") navigate("/client");
-    } catch (err) {
-      if (err.response?.status === 403) {
-        toast.error("Advocate account pending admin approval");
+      // 🔁 redirect by role
+      if (res.data.role === "admin") {
+        navigate("/admin");
+      } else if (res.data.role === "advocate") {
+        if (!res.data.is_approved) {
+          navigate("/pending");
+        } else {
+          navigate("/advocate");
+        }
       } else {
+        navigate("/client");
+      }
+    } catch (err) {
+      console.error(err);
+
+      if (err.response && err.response.status === 403) {
         toast.error("Invalid username or password");
+      } else {
+        toast.error("Login failed. Try again");
       }
     }
   };
@@ -42,23 +52,27 @@ export default function Login() {
     <div className="login-box">
       <h2>Login</h2>
 
-      <input
-        placeholder="Username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-      />
+      <form onSubmit={handleLogin}>
+        <input
+          placeholder="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          required
+        />
 
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
 
-      <button onClick={login}>Login</button>
+        <button type="submit">Login</button>
+      </form>
 
       <p>
-        Don’t have an account? <Link to="/signup">Sign up</Link>
+        Don&apos;t have an account? <a href="/signup">Sign up</a>
       </p>
     </div>
   );
