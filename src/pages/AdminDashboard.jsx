@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from "react";
 import API from "../api/api";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+
 
 export default function AdminDashboard() {
   const [pending, setPending] = useState([]);
   const [approved, setApproved] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
 
   useEffect(() => {
   const token = localStorage.getItem("token");
