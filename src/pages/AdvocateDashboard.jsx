@@ -35,10 +35,10 @@ export default function AdvocateDashboard() {
     }
   };
 
-  // 📥 Load ONLY pending appointments
+  // 📥 Load ONLY pending appointments ✅ FIXED URL
   const loadRequests = async () => {
     try {
-      const res = await API.get("appointments/?status=pending");
+      const res = await API.get("appointments/requests/");
       setRequests(res.data);
     } catch (err) {
       console.error(err);
@@ -49,29 +49,22 @@ export default function AdvocateDashboard() {
   };
 
   // ✅ Approve appointment
-  const approve = async (id, clientId) => {
+  const approve = async (id) => {
     try {
-      await API.post(`appointments/${id}/approve/`);
+      await API.post(`appointments/approve/${id}/`);
       toast.success("Client request approved");
 
-      // 👉 After approval → go to chat
-      navigate(`/chat/${clientId}`);
+      // 👉 reload list after approval
+      loadRequests();
     } catch (err) {
       console.error(err);
       toast.error("Approval failed");
     }
   };
 
-  // ❌ Reject appointment
-  const reject = async (id) => {
-    try {
-      await API.delete(`appointments/${id}/`);
-      toast.success("Request deleted");
-      loadRequests();
-    } catch (err) {
-      console.error(err);
-      toast.error("Delete failed");
-    }
+  // ❌ Reject appointment (backend DELETE not implemented)
+  const reject = async () => {
+    toast.error("Delete not supported yet");
   };
 
   return (
@@ -101,20 +94,17 @@ export default function AdvocateDashboard() {
 
           {requests.map((r) => (
             <tr key={r.id}>
-              <td>{r.client.username}</td>
+              {/* ✅ client is STRING from backend */}
+              <td>{r.client}</td>
               <td>
-                {/* ✅ ONLY pending actions */}
-                <button
-                  className="btn"
-                  onClick={() => approve(r.id, r.client.id)}
-                >
+                <button className="btn" onClick={() => approve(r.id)}>
                   Approve
                 </button>
 
                 <button
                   className="btn danger"
                   style={{ marginLeft: "10px" }}
-                  onClick={() => reject(r.id)}
+                  onClick={reject}
                 >
                   Delete
                 </button>
