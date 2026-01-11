@@ -20,11 +20,7 @@ export default function Chat() {
   const sendMessage = () => {
     if (!text.trim()) return;
 
-    setMessages([
-      ...messages,
-      { from: role, text },
-    ]);
-
+    setMessages([...messages, { from: role, text }]);
     setText("");
   };
 
