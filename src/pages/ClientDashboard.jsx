@@ -24,10 +24,11 @@ export default function ClientDashboard() {
     }
   };
 
+  // ✅ FIXED: advocate ➜ advocate_id (ONLY CHANGE)
   const bookAdvocate = async (advocateId) => {
     try {
       await API.post("appointments/", {
-        advocate: advocateId,
+        advocate_id: advocateId,
       });
       toast.success("Request sent to advocate");
       loadAdvocates(); // 🔄 refresh status
@@ -86,7 +87,6 @@ export default function ClientDashboard() {
                   </button>
                 )}
               </td>
-
             </tr>
           ))}
         </tbody>
