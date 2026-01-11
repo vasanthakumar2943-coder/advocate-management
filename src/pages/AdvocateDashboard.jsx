@@ -5,11 +5,14 @@ import { toast } from "react-toastify";
 
 export default function AdvocateDashboard() {
   const [requests, setRequests] = useState([]);
+  const [approvedClients, setApprovedClients] = useState([]);
   const [loading, setLoading] = useState(true);
+
   const navigate = useNavigate();
 
   useEffect(() => {
     checkApprovalAndLoad();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // 🔐 Check advocate approval
@@ -28,6 +31,7 @@ export default function AdvocateDashboard() {
       }
 
       loadRequests();
+      loadApprovedClients();
     } catch (err) {
       console.error(err);
       toast.error("Session expired. Please login again.");
@@ -35,7 +39,7 @@ export default function AdvocateDashboard() {
     }
   };
 
-  // 📥 Load ONLY pending appointments ✅ FIXED URL
+  // 📥 Pending requests
   const loadRequests = async () => {
     try {
       const res = await API.get("appointments/requests/");
@@ -48,27 +52,34 @@ export default function AdvocateDashboard() {
     }
   };
 
+  // ✅ Approved clients list (NEW)
+  const loadApprovedClients = async () => {
+    try {
+      const res = await API.get("appointments/approved/");
+      setApprovedClients(res.data);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to load approved clients");
+    }
+  };
+
   // ✅ Approve appointment
   const approve = async (id) => {
     try {
       await API.post(`appointments/approve/${id}/`);
       toast.success("Client request approved");
 
-      // 👉 reload list after approval
       loadRequests();
+      loadApprovedClients();
     } catch (err) {
       console.error(err);
       toast.error("Approval failed");
     }
   };
 
-  // ❌ Reject appointment (backend DELETE not implemented)
-  const reject = async () => {
-    toast.error("Delete not supported yet");
-  };
-
   return (
     <div className="page">
+      {/* ================= PENDING REQUESTS ================= */}
       <h2>Client Requests</h2>
 
       <table className="table">
@@ -94,19 +105,44 @@ export default function AdvocateDashboard() {
 
           {requests.map((r) => (
             <tr key={r.id}>
-              {/* ✅ client is STRING from backend */}
               <td>{r.client}</td>
               <td>
                 <button className="btn" onClick={() => approve(r.id)}>
                   Approve
                 </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
 
+      {/* ================= APPROVED CLIENTS (NEW) ================= */}
+      <h2 style={{ marginTop: "40px" }}>Approved Clients</h2>
+
+      <table className="table">
+        <thead>
+          <tr>
+            <th>Client</th>
+            <th>Chat</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {approvedClients.length === 0 && (
+            <tr>
+              <td colSpan="2">No approved clients yet</td>
+            </tr>
+          )}
+
+          {approvedClients.map((c) => (
+            <tr key={c.id}>
+              <td>{c.client}</td>
+              <td>
                 <button
-                  className="btn danger"
-                  style={{ marginLeft: "10px" }}
-                  onClick={reject}
+                  className="btn"
+                  onClick={() => navigate(`/chat/${c.client_id}`)}
                 >
-                  Delete
+                  Chat
                 </button>
               </td>
             </tr>
