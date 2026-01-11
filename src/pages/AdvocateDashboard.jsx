@@ -4,8 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 export default function AdvocateDashboard() {
-  const [requests, setRequests] = useState([]);
-  const [approvedClients, setApprovedClients] = useState([]);
+  const [pending, setPending] = useState([]);
+  const [approved, setApproved] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
@@ -30,8 +30,7 @@ export default function AdvocateDashboard() {
         localStorage.setItem("approved_notified", "true");
       }
 
-      loadRequests();
-      loadApprovedClients();
+      loadAll();
     } catch (err) {
       console.error(err);
       toast.error("Session expired. Please login again.");
@@ -39,38 +38,31 @@ export default function AdvocateDashboard() {
     }
   };
 
-  // 📥 Pending requests
-  const loadRequests = async () => {
+  // 🔄 Load both tables (LIKE ADMIN)
+  const loadAll = async () => {
+    setLoading(true);
     try {
-      const res = await API.get("appointments/requests/");
-      setRequests(res.data);
+      const [pendingRes, approvedRes] = await Promise.all([
+        API.get("appointments/requests/"),
+        API.get("appointments/approved/"),
+      ]);
+
+      setPending(pendingRes.data);
+      setApproved(approvedRes.data);
     } catch (err) {
       console.error(err);
-      toast.error("Failed to load requests");
+      toast.error("Failed to load advocate data");
     } finally {
       setLoading(false);
     }
   };
 
-  // ✅ Approved clients list
-  const loadApprovedClients = async () => {
-    try {
-      const res = await API.get("appointments/approved/");
-      setApprovedClients(res.data);
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to load approved clients");
-    }
-  };
-
-  // ✅ Approve appointment
-  const approve = async (id) => {
+  // ✅ Approve client
+  const approveClient = async (id) => {
     try {
       await API.post(`appointments/approve/${id}/`);
-      toast.success("Client request approved");
-
-      loadRequests();
-      loadApprovedClients();
+      toast.success("Client approved");
+      loadAll(); // 🔄 refresh both tables
     } catch (err) {
       console.error(err);
       toast.error("Approval failed");
@@ -79,8 +71,12 @@ export default function AdvocateDashboard() {
 
   return (
     <div className="page">
-      {/* ================= PENDING REQUESTS ================= */}
-      <h2>Client Requests</h2>
+      <h2>Advocate Dashboard</h2>
+
+      {/* ===================== */}
+      {/* 🔴 PENDING CLIENTS */}
+      {/* ===================== */}
+      <h3 style={{ marginTop: "30px" }}>Pending Client Requests</h3>
 
       <table className="table">
         <thead>
@@ -93,21 +89,24 @@ export default function AdvocateDashboard() {
         <tbody>
           {loading && (
             <tr>
-              <td colSpan="2">Loading requests...</td>
+              <td colSpan="2">Loading...</td>
             </tr>
           )}
 
-          {!loading && requests.length === 0 && (
+          {!loading && pending.length === 0 && (
             <tr>
               <td colSpan="2">No pending requests</td>
             </tr>
           )}
 
-          {requests.map((r) => (
-            <tr key={r.id}>
-              <td>{r.client}</td>
+          {pending.map((p) => (
+            <tr key={p.id}>
+              <td>{p.client}</td>
               <td>
-                <button className="btn" onClick={() => approve(r.id)}>
+                <button
+                  className="btn"
+                  onClick={() => approveClient(p.id)}
+                >
                   Approve
                 </button>
               </td>
@@ -116,8 +115,10 @@ export default function AdvocateDashboard() {
         </tbody>
       </table>
 
-      {/* ================= APPROVED CLIENTS ================= */}
-      <h2 style={{ marginTop: "40px" }}>Approved Clients</h2>
+      {/* ===================== */}
+      {/* 🟢 APPROVED CLIENTS */}
+      {/* ===================== */}
+      <h3 style={{ marginTop: "40px" }}>Approved Clients</h3>
 
       <table className="table">
         <thead>
@@ -128,19 +129,27 @@ export default function AdvocateDashboard() {
         </thead>
 
         <tbody>
-          {approvedClients.length === 0 && (
+          {loading && (
             <tr>
-              <td colSpan="2">No approved clients yet</td>
+              <td colSpan="2">Loading...</td>
             </tr>
           )}
 
-          {approvedClients.map((c) => (
+          {!loading && approved.length === 0 && (
+            <tr>
+              <td colSpan="2">No approved clients</td>
+            </tr>
+          )}
+
+          {approved.map((c) => (
             <tr key={c.appointment_id}>
               <td>{c.client_name}</td>
               <td>
                 <button
                   className="btn"
-                  onClick={() => navigate(`/chat/${c.appointment_id}`)}
+                  onClick={() =>
+                    navigate(`/chat/${c.appointment_id}`)
+                  }
                 >
                   Chat
                 </button>
