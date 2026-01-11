@@ -38,13 +38,14 @@ export default function AdvocateDashboard() {
     }
   };
 
-  // 🔄 Load both tables (LIKE ADMIN)
+  // 🔄 Load both tables
   const loadAll = async () => {
     setLoading(true);
     try {
       const [pendingRes, approvedRes] = await Promise.all([
-        API.get("advocate/appointments/requests/"),
-        API.get("advocate/appointments/approved/"),
+        // ✅ FIXED ENDPOINTS
+        API.get("appointments/requests/"),
+        API.get("appointments/approved/"),
       ]);
 
       setPending(pendingRes.data);
@@ -60,9 +61,10 @@ export default function AdvocateDashboard() {
   // ✅ Approve client
   const approveClient = async (id) => {
     try {
-      await API.post(`advocate/appointments/approve/${id}/`);
+      // ✅ FIXED ENDPOINT
+      await API.post(`appointments/approve/${id}/`);
       toast.success("Client approved");
-      loadAll(); // 🔄 refresh both tables
+      loadAll();
     } catch (err) {
       console.error(err);
       toast.error("Approval failed");
@@ -73,9 +75,7 @@ export default function AdvocateDashboard() {
     <div className="page">
       <h2>Advocate Dashboard</h2>
 
-      {/* ===================== */}
       {/* 🔴 PENDING CLIENTS */}
-      {/* ===================== */}
       <h3 style={{ marginTop: "30px" }}>Pending Client Requests</h3>
 
       <table className="table">
@@ -115,9 +115,7 @@ export default function AdvocateDashboard() {
         </tbody>
       </table>
 
-      {/* ===================== */}
       {/* 🟢 APPROVED CLIENTS */}
-      {/* ===================== */}
       <h3 style={{ marginTop: "40px" }}>Approved Clients</h3>
 
       <table className="table">
