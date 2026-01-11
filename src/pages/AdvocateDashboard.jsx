@@ -52,7 +52,7 @@ export default function AdvocateDashboard() {
     }
   };
 
-  // ✅ Approved clients list (NEW)
+  // ✅ Approved clients list
   const loadApprovedClients = async () => {
     try {
       const res = await API.get("appointments/approved/");
@@ -116,7 +116,7 @@ export default function AdvocateDashboard() {
         </tbody>
       </table>
 
-      {/* ================= APPROVED CLIENTS (NEW) ================= */}
+      {/* ================= APPROVED CLIENTS ================= */}
       <h2 style={{ marginTop: "40px" }}>Approved Clients</h2>
 
       <table className="table">
@@ -135,12 +135,12 @@ export default function AdvocateDashboard() {
           )}
 
           {approvedClients.map((c) => (
-            <tr key={c.id}>
-              <td>{c.client}</td>
+            <tr key={c.appointment_id}>
+              <td>{c.client_name}</td>
               <td>
                 <button
                   className="btn"
-                  onClick={() => navigate(`/chat/${c.client_id}`)}
+                  onClick={() => navigate(`/chat/${c.appointment_id}`)}
                 >
                   Chat
                 </button>
