@@ -8,8 +8,14 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadAll();
-  }, []);
+  const token = localStorage.getItem("token");
+  if (!token) {
+    navigate("/login");
+    return;
+  }
+  loadAll();
+}, []);
+
 
   const loadAll = async () => {
     setLoading(true);
