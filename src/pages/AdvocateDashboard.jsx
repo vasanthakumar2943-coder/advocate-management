@@ -43,9 +43,8 @@ export default function AdvocateDashboard() {
     setLoading(true);
     try {
       const [pendingRes, approvedRes] = await Promise.all([
-        // ✅ FIXED ENDPOINTS
-        API.get("appointments/requests/"),
-        API.get("appointments/approved/"),
+        API.get("appointments/requests/"),   // ✅ MUST END WITH /
+        API.get("appointments/approved/"),   // ✅ MUST END WITH /
       ]);
 
       setPending(pendingRes.data);
@@ -61,8 +60,7 @@ export default function AdvocateDashboard() {
   // ✅ Approve client
   const approveClient = async (id) => {
     try {
-      // ✅ FIXED ENDPOINT
-      await API.post(`appointments/approve/${id}/`);
+      await API.post(`appointments/approve/${id}/`); // ✅ SLASH
       toast.success("Client approved");
       loadAll();
     } catch (err) {
@@ -75,7 +73,6 @@ export default function AdvocateDashboard() {
     <div className="page">
       <h2>Advocate Dashboard</h2>
 
-      {/* 🔴 PENDING CLIENTS */}
       <h3 style={{ marginTop: "30px" }}>Pending Client Requests</h3>
 
       <table className="table">
@@ -85,28 +82,22 @@ export default function AdvocateDashboard() {
             <th>Action</th>
           </tr>
         </thead>
-
         <tbody>
           {loading && (
             <tr>
               <td colSpan="2">Loading...</td>
             </tr>
           )}
-
           {!loading && pending.length === 0 && (
             <tr>
               <td colSpan="2">No pending requests</td>
             </tr>
           )}
-
           {pending.map((p) => (
             <tr key={p.id}>
               <td>{p.client}</td>
               <td>
-                <button
-                  className="btn"
-                  onClick={() => approveClient(p.id)}
-                >
+                <button className="btn" onClick={() => approveClient(p.id)}>
                   Approve
                 </button>
               </td>
@@ -115,7 +106,6 @@ export default function AdvocateDashboard() {
         </tbody>
       </table>
 
-      {/* 🟢 APPROVED CLIENTS */}
       <h3 style={{ marginTop: "40px" }}>Approved Clients</h3>
 
       <table className="table">
@@ -125,29 +115,24 @@ export default function AdvocateDashboard() {
             <th>Chat</th>
           </tr>
         </thead>
-
         <tbody>
           {loading && (
             <tr>
               <td colSpan="2">Loading...</td>
             </tr>
           )}
-
           {!loading && approved.length === 0 && (
             <tr>
               <td colSpan="2">No approved clients</td>
             </tr>
           )}
-
           {approved.map((c) => (
             <tr key={c.appointment_id}>
               <td>{c.client_name}</td>
               <td>
                 <button
                   className="btn"
-                  onClick={() =>
-                    navigate(`/chat/${c.appointment_id}`)
-                  }
+                  onClick={() => navigate(`/chat/${c.appointment_id}`)}
                 >
                   Chat
                 </button>
