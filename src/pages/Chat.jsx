@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 
 /*
@@ -26,12 +26,6 @@ export default function Chat() {
 
   return (
     <div className="chat-container">
-      {/* HEADER */}
-      <div className="chat-header">
-        <strong>Chat</strong>
-        <span className="chat-status">Online</span>
-      </div>
-
       {/* BODY */}
       <div className="chat-body">
         {messages.map((m, i) => (
@@ -48,11 +42,17 @@ export default function Chat() {
 
       {/* FOOTER */}
       <div className="chat-footer">
+        <label className="chat-file">
+          📎
+          <input type="file" hidden />
+        </label>
+
         <input
           placeholder="Type a message"
           value={text}
           onChange={(e) => setText(e.target.value)}
         />
+
         <button onClick={sendMessage}>Send</button>
       </div>
     </div>

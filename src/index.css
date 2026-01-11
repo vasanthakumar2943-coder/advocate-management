@@ -124,7 +124,7 @@ tr:nth-child(even) {
 }
 
 /* ========================= */
-/* 💬 CHAT UI STYLES */
+/* 💬 CHAT – BLACK THEME */
 /* ========================= */
 
 .chatpage-container {
@@ -135,21 +135,26 @@ tr:nth-child(even) {
 }
 
 .chatpage-box {
-  width: 700px;
+  width: 720px;
   max-width: 95%;
-  background: #fff;
+  background: #111;
   border-radius: 6px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
   overflow: hidden;
+  box-shadow: 0 0 15px rgba(0,0,0,0.6);
 }
 
 .chatpage-header {
-  background: #0f766e;
+  background: #000;
   color: #fff;
-  padding: 10px 15px;
+  padding: 12px 15px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+}
+
+.chat-status {
+  font-size: 12px;
+  color: #22c55e;
 }
 
 .chatpage-close {
@@ -160,39 +165,23 @@ tr:nth-child(even) {
   cursor: pointer;
 }
 
-.chatpage-body {
-  height: 450px;
-}
-
-/* CHAT */
+/* CHAT BODY */
 
 .chat-container {
   display: flex;
   flex-direction: column;
-  height: 100%;
-}
-
-.chat-header {
-  background: #0f766e;
-  color: white;
-  padding: 10px;
-  display: flex;
-  justify-content: space-between;
-}
-
-.chat-status {
-  font-size: 12px;
+  height: 480px;
+  background: #0f0f0f;
 }
 
 .chat-body {
   flex: 1;
   padding: 15px;
   overflow-y: auto;
-  background: #f3f4f6;
 }
 
 .chat-msg {
-  max-width: 70%;
+  max-width: 65%;
   padding: 8px 12px;
   margin-bottom: 10px;
   border-radius: 6px;
@@ -200,37 +189,48 @@ tr:nth-child(even) {
 }
 
 .chat-msg.left {
-  background: #e5e7eb;
+  background: #1f2933;
+  color: #e5e7eb;
   align-self: flex-start;
 }
 
 .chat-msg.right {
-  background: #0f766e;
-  color: white;
+  background: #000;
+  color: #fff;
   align-self: flex-end;
 }
 
+/* FOOTER */
+
 .chat-footer {
   display: flex;
+  align-items: center;
+  gap: 10px;
   padding: 10px;
-  border-top: 1px solid #ddd;
+  border-top: 1px solid #333;
 }
 
 .chat-footer input {
   flex: 1;
   padding: 8px;
-  border: 1px solid #ccc;
   border-radius: 4px;
+  border: none;
+  outline: none;
 }
 
 .chat-footer button {
-  margin-left: 10px;
   padding: 8px 16px;
-  background: #0f766e;
+  background: #000;
   color: white;
-  border: none;
+  border: 1px solid #444;
   border-radius: 4px;
   cursor: pointer;
+}
+
+.chat-file {
+  cursor: pointer;
+  font-size: 18px;
+  color: white;
 }
 
 /* =====================

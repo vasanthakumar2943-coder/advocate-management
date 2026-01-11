@@ -12,6 +12,8 @@ export default function ChatPage() {
         {/* HEADER */}
         <div className="chatpage-header">
           <strong>Chat</strong>
+          <span className="chat-status">Online</span>
+
           <button
             className="chatpage-close"
             onClick={() => navigate(-1)}
@@ -21,10 +23,8 @@ export default function ChatPage() {
           </button>
         </div>
 
-        {/* CHAT BODY */}
-        <div className="chatpage-body">
-          <Chat key={chatId} />
-        </div>
+        {/* CHAT */}
+        <Chat key={chatId} />
       </div>
     </div>
   );
