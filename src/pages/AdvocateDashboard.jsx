@@ -43,8 +43,8 @@ export default function AdvocateDashboard() {
     setLoading(true);
     try {
       const [pendingRes, approvedRes] = await Promise.all([
-        API.get("appointments/requests/"),
-        API.get("appointments/approved/"),
+        API.get("advocate/appointments/requests/"),
+        API.get("advocate/appointments/approved/"),
       ]);
 
       setPending(pendingRes.data);
@@ -60,7 +60,7 @@ export default function AdvocateDashboard() {
   // ✅ Approve client
   const approveClient = async (id) => {
     try {
-      await API.post(`appointments/approve/${id}/`);
+      await API.post(`advocate/appointments/approve/${id}/`);
       toast.success("Client approved");
       loadAll(); // 🔄 refresh both tables
     } catch (err) {
