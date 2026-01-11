@@ -1,11 +1,19 @@
 import axios from "axios";
 
+// ===============================
+// AXIOS INSTANCE
+// ===============================
 const API = axios.create({
+  // ❌ OLD (WRONG):
+  // baseURL: "https://web-production-d827.up.railway.app/api/auth/",
+
+  // ✅ FIXED (CORRECT – BACKEND MATCH)
   baseURL: "https://web-production-d827.up.railway.app/api/",
+
   headers: {
     "Content-Type": "application/json",
   },
-  timeout: 15000,
+  timeout: 15000, // prevent infinite loading
 });
 
 // ===============================
