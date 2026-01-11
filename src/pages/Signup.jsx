@@ -1,13 +1,17 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import API from "../api/api";
+import axios from "axios";
+
+/* ================================
+   AXIOS CONFIG (FINAL)
+================================ */
+const API = axios.create({
+  baseURL: "https://web-production-d827.up.railway.app/api/",
+});
 
 export default function Signup() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("client");
-
-  const navigate = useNavigate();
 
   const signup = async () => {
     if (!username || !password) {
@@ -24,14 +28,14 @@ export default function Signup() {
       });
 
       alert("Signup successful. Please login.");
-      navigate("/login");
+      window.location.href = "/login";
     } catch (err) {
       console.error(err);
 
       if (err.response?.status === 400) {
-        alert(err.response.data?.error || "Username already exists");
+        alert("Username already exists");
       } else {
-        alert("Signup failed. Server error.");
+        alert("Signup failed. Check backend.");
       }
     }
   };

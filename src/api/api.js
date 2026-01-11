@@ -1,9 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL:
-    import.meta.env.VITE_API_BASE_URL ||
-    "https://web-production-d827.up.railway.app/api/",
+  baseURL: "https://web-production-d827.up.railway.app/api/",
   headers: {
     "Content-Type": "application/json",
   },
@@ -33,14 +31,12 @@ API.interceptors.response.use(
   (response) => response,
   (error) => {
     // 🔴 Auto logout on auth failure
-    if (
-      error.response &&
-      (error.response.status === 401 || error.response.status === 403)
-    ) {
+    if (error.response && (error.response.status === 401 || error.response.status === 403)) {
       localStorage.removeItem("access");
       localStorage.removeItem("refresh");
       localStorage.removeItem("approved_notified");
 
+      // redirect safely
       if (window.location.pathname !== "/login") {
         window.location.href = "/login";
       }
