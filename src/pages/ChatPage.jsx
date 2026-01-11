@@ -7,25 +7,19 @@ export default function ChatPage() {
   const { chatId } = useParams();
 
   return (
-    <div className="chatpage-container">
-      <div className="chatpage-box">
-        {/* HEADER */}
-        <div className="chatpage-header">
+    <div className="wa-page">
+      {/* HEADER */}
+      <div className="wa-header">
+        <div className="wa-header-left">
+          <button onClick={() => navigate(-1)}>←</button>
           <strong>Chat</strong>
-          <span className="chat-status">Online</span>
-
-          <button
-            className="chatpage-close"
-            onClick={() => navigate(-1)}
-            title="Close chat"
-          >
-            ✖
-          </button>
         </div>
 
-        {/* CHAT */}
-        <Chat key={chatId} />
+        <span className="wa-status">Online</span>
       </div>
+
+      {/* CHAT */}
+      <Chat key={chatId} />
     </div>
   );
 }

@@ -1,11 +1,6 @@
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 
-/*
-  chatId = appointment id
-  Logic already locked in dashboard
-*/
-
 export default function Chat() {
   const { chatId } = useParams();
 
@@ -19,21 +14,18 @@ export default function Chat() {
 
   const sendMessage = () => {
     if (!text.trim()) return;
-
     setMessages([...messages, { from: role, text }]);
     setText("");
   };
 
   return (
-    <div className="chat-container">
+    <div className="wa-chat">
       {/* BODY */}
-      <div className="chat-body">
+      <div className="wa-body">
         {messages.map((m, i) => (
           <div
             key={i}
-            className={
-              m.from === role ? "chat-msg right" : "chat-msg left"
-            }
+            className={`wa-msg ${m.from === role ? "right" : "left"}`}
           >
             {m.text}
           </div>
@@ -41,19 +33,19 @@ export default function Chat() {
       </div>
 
       {/* FOOTER */}
-      <div className="chat-footer">
-        <label className="chat-file">
+      <div className="wa-footer">
+        <label className="wa-attach">
           📎
           <input type="file" hidden />
         </label>
 
         <input
-          placeholder="Type a message"
+          placeholder="Message"
           value={text}
           onChange={(e) => setText(e.target.value)}
         />
 
-        <button onClick={sendMessage}>Send</button>
+        <button onClick={sendMessage}>➤</button>
       </div>
     </div>
   );
