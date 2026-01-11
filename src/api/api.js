@@ -5,7 +5,7 @@ const API = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-  timeout: 15000, // ✅ prevent infinite loading
+  timeout: 15000,
 });
 
 // ===============================
@@ -13,15 +13,15 @@ const API = axios.create({
 // ===============================
 API.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("access");
-
+    const token = localStorage.getItem("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => {
+    return Promise.reject(error);
+  }
 );
 
 // ===============================
@@ -30,18 +30,9 @@ API.interceptors.request.use(
 API.interceptors.response.use(
   (response) => response,
   (error) => {
-    // 🔴 Auto logout on auth failure
-    if (error.response && (error.response.status === 401 || error.response.status === 403)) {
-      localStorage.removeItem("access");
-      localStorage.removeItem("refresh");
-      localStorage.removeItem("approved_notified");
-
-      // redirect safely
-      if (window.location.pathname !== "/login") {
-        window.location.href = "/login";
-      }
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem("token");
     }
-
     return Promise.reject(error);
   }
 );

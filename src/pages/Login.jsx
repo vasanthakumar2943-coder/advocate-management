@@ -1,9 +1,8 @@
 import React, { useState } from "react";
-import API from "../api/api";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import API from "../api";
 
-export default function Login() {
+const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
@@ -17,63 +16,44 @@ export default function Login() {
         password,
       });
 
-      // ✅ save tokens
-      localStorage.setItem("access", res.data.access);
-      localStorage.setItem("refresh", res.data.refresh);
-      localStorage.setItem("role", res.data.role);
-      localStorage.setItem("is_approved", res.data.is_approved);
+      localStorage.setItem("token", res.data.access);
 
-      toast.success("Login successful");
-
-      // 🔁 redirect by role
       if (res.data.role === "admin") {
         navigate("/admin");
       } else if (res.data.role === "advocate") {
-        if (!res.data.is_approved) {
-          navigate("/pending");
-        } else {
-          navigate("/advocate");
-        }
+        navigate("/advocate");
       } else {
         navigate("/client");
       }
     } catch (err) {
-      console.error(err);
-
-      if (err.response && err.response.status === 403) {
-        toast.error("Invalid username or password");
+      if (err.response && err.response.status === 401) {
+        alert("Invalid username or password");
       } else {
-        toast.error("Login failed. Try again");
+        alert("Login failed");
       }
     }
   };
 
   return (
-    <div className="login-box">
+    <div className="auth-container">
       <h2>Login</h2>
-
       <form onSubmit={handleLogin}>
         <input
+          type="text"
           placeholder="Username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          required
         />
-
         <input
           type="password"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          required
         />
-
         <button type="submit">Login</button>
       </form>
-
-      <p>
-        Don&apos;t have an account? <a href="/signup">Sign up</a>
-      </p>
     </div>
   );
-}
+};
+
+export default Login;
