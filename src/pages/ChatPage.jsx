@@ -11,7 +11,7 @@ export default function ChatPage() {
       {/* HEADER */}
       <div className="wa-header">
         <div className="wa-header-left">
-          <button onClick={() => navigate(-1)}>←</button>
+          <button className="btn-primary" onClick={() => navigate(-1)}>←</button>
           <strong>Chat</strong>
         </div>
 

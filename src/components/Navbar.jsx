@@ -56,7 +56,7 @@ export default function Navbar() {
 
       {/* RIGHT */}
       <div className="navbar-right">
-        {role && <span className="role-badge">{role}</span>}
+        
 
         {/* 🔔 Approval Notification */}
         {showBell && (

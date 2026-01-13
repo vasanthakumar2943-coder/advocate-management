@@ -1,35 +1,59 @@
 /* =====================
    GLOBAL
 ===================== */
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
   font-family: "Segoe UI", Arial, sans-serif;
   background: #f4f6f8;
+  color: #111;
 }
 
 /* =====================
    NAVBAR
 ===================== */
 .navbar {
-  background: #111;
-  color: white;
+  background: #000;
+  color: #fff;
   padding: 14px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: nowrap; /* 🔒 never wrap */
+}
+
+.navbar-left,
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .navbar button {
-  margin-left: 10px;
-  padding: 6px 12px;
+  padding: 6px 14px;
+  border-radius: 6px;
   border: none;
   cursor: pointer;
-  border-radius: 4px;
+  font-size: 14px;
 }
 
+/* Logout */
 .btn-logout {
-  background: crimson;
-  color: white;
+  background: #fff;
+  color: #000;
+}
+
+.btn-logout:hover {
+  background: #e5e5e5;
+}
+
+/* Notification bell */
+.navbar .bell {
+  font-size: 18px;
+  cursor: pointer;
 }
 
 /* =====================
@@ -40,11 +64,11 @@ body {
 }
 
 .card {
-  background: white;
+  background: #fff;
   padding: 20px;
-  margin-bottom: 15px;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  margin-bottom: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
 }
 
 /* =====================
@@ -54,22 +78,35 @@ table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 15px;
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
 }
 
-th,
-td {
-  border: 1px solid #ddd;
-  padding: 10px;
-  text-align: left;
+thead {
+  background: #000;
 }
 
 th {
-  background: #111;
-  color: white;
+  color: #fff;
+  padding: 12px;
+  text-align: center;
+  font-weight: 600;
+  border-bottom: 2px solid #333; /* divider */
+}
+
+td {
+  padding: 12px;
+  text-align: center;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+tr:last-child td {
+  border-bottom: none;
 }
 
 tr:nth-child(even) {
-  background: #f9f9f9;
+  background: #fafafa;
 }
 
 /* =====================
@@ -80,50 +117,90 @@ tr:nth-child(even) {
   border-radius: 6px;
   border: none;
   cursor: pointer;
+  font-size: 14px;
 }
 
+/* Primary (black) */
+.btn-primary {
+  background: #000;
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: #222;
+}
+
+/* Secondary (white) */
+.btn-secondary {
+  background: #fff;
+  color: #000;
+  border: 1px solid #000;
+}
+
+.btn-secondary:hover {
+  background: #f2f2f2;
+}
+
+/* Old buttons preserved */
 .approve {
-  background: #28a745;
-  color: white;
+  background: #000;
+  color: #fff;
 }
 
 .chat {
-  background: #0d6efd;
-  color: white;
+  background: #fff;
+  color: #000;
+  border: 1px solid #000;
 }
 
 .delete {
   background: #dc3545;
-  color: white;
+  color: #fff;
 }
 
 /* =====================
    LOGIN
 ===================== */
 .login-box {
-  width: 350px;
+  width: 360px;
   margin: 90px auto;
-  background: white;
-  padding: 25px;
-  border-radius: 6px;
+  background: #fff;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
 }
 
 .login-box input,
 .login-box select {
   width: 100%;
-  padding: 8px;
-  margin-bottom: 10px;
+  padding: 10px;
+  margin-bottom: 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.login-box input:focus {
+  outline: none;
+  border-color: #000;
 }
 
 .login-box button {
   width: 100%;
-  padding: 10px;
-  background: black;
-  color: white;
+  padding: 12px;
+  background: #000;
+  color: #fff;
   border: none;
+  border-radius: 6px;
+  cursor: pointer;
 }
 
-/* PAGE */
+.login-box button:hover {
+  background: #222;
+}
+
+/* =====================
+   CHAT (WhatsApp Style)
+===================== */
 .wa-page {
   height: calc(100vh - 60px);
   display: flex;
@@ -234,86 +311,37 @@ tr:nth-child(even) {
   font-size: 18px;
   cursor: pointer;
 }
-
 /* =====================
-   RESPONSIVE (TABLET)
+   RESPONSIVE – ALL SCREENS
 ===================== */
 @media (max-width: 992px) {
   .page {
     padding: 20px;
   }
-
-  .chat-wrapper {
-    max-width: 100%;
-    height: 80vh;
-    margin: 10px;
-  }
-
-  .chat-bubble {
-    max-width: 75%;
-  }
 }
 
-/* =====================
-   RESPONSIVE (MOBILE)
-===================== */
 @media (max-width: 768px) {
-  body {
-    overflow-x: hidden;
-  }
-
   .navbar {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-  }
-
-  .login-box {
-    width: 90%;
-    margin: 60px auto;
-  }
-
-  .page {
     padding: 12px;
   }
 
-  .card {
-    padding: 14px;
+  .page {
+    padding: 15px;
   }
 
   table {
-    display: block;
-    overflow-x: auto;
-    white-space: nowrap;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-box {
+    width: 92%;
+    margin: 50px auto;
   }
 
   th,
   td {
-    font-size: 13px;
-    padding: 8px;
-  }
-
-  .chat-wrapper {
-    height: calc(100vh - 120px);
-    margin: 0;
-    border-radius: 0;
-  }
-
-  .chat-bubble {
-    max-width: 85%;
-    font-size: 13px;
-  }
-}
-
-/* =====================
-   SMALL MOBILE
-===================== */
-@media (max-width: 480px) {
-  .chat-bubble {
-    max-width: 90%;
-  }
-
-  .navbar {
     padding: 10px;
   }
 }
