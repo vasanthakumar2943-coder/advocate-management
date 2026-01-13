@@ -70,7 +70,7 @@ export default function ClientDashboard() {
               <td>
                 {/* ✅ Book button ALWAYS visible */}
                 <button
-                  className="btn"
+                  className="btn-primary"
                   onClick={() => bookAdvocate(a.id)}
                 >
                   Book
@@ -79,7 +79,7 @@ export default function ClientDashboard() {
                 {/* 🔵 Chat button ONLY if backend says allowed */}
                 {a.can_chat && (
                   <button
-                    className="btn"
+                    className="btn-primary"
                     style={{ marginLeft: "10px" }}
                     onClick={() => navigate(`/chat/${a.id}`)}
                   >

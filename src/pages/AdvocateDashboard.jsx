@@ -43,8 +43,8 @@ export default function AdvocateDashboard() {
     setLoading(true);
     try {
       const [pendingRes, approvedRes] = await Promise.all([
-        API.get("appointments/requests/"),   // ✅ MUST END WITH /
-        API.get("appointments/approved/"),   // ✅ MUST END WITH /
+        API.get("appointments/requests/"), // ✅
+        API.get("appointments/approved/"), // ✅
       ]);
 
       setPending(pendingRes.data);
@@ -58,16 +58,28 @@ export default function AdvocateDashboard() {
   };
 
   // ✅ Approve client
-  const approveClient = async (id) => {
-    try {
-      await API.post(`appointments/approve/${id}/`); // ✅ SLASH
-      toast.success("Client approved");
-      loadAll();
-    } catch (err) {
-      console.error(err);
-      toast.error("Approval failed");
-    }
-  };
+// ✅ Approve client
+const approveClient = async (id) => {
+  try {
+    await API.post(`appointments/approve/${id}/`);
+    toast.success("Client approved");
+    loadAll();
+  } catch (err) {
+    toast.error("Approval failed");
+  }
+};
+
+// ✅ Delete client request
+const deleteClient = async (id) => {
+  try {
+    await API.delete(`appointments/delete/${id}/`);
+    toast.success("Client request deleted");
+    loadAll();
+  } catch (err) {
+    console.error(err);
+    toast.error("Delete failed");
+  }
+};
 
   return (
     <div className="page">
@@ -88,17 +100,30 @@ export default function AdvocateDashboard() {
               <td colSpan="2">Loading...</td>
             </tr>
           )}
+
           {!loading && pending.length === 0 && (
             <tr>
               <td colSpan="2">No pending requests</td>
             </tr>
           )}
+
           {pending.map((p) => (
             <tr key={p.id}>
               <td>{p.client}</td>
               <td>
-                <button className="btn" onClick={() => approveClient(p.id)}>
+                <button
+                  className="btn-primary"
+                  onClick={() => approveClient(p.id)}
+                >
                   Approve
+                </button>
+
+                <button
+                  className="del-btn"
+                  onClick={() => deleteClient(p.id)}
+                  style={{ marginLeft: "10px" }}
+                >
+                  Delete
                 </button>
               </td>
             </tr>
@@ -121,20 +146,31 @@ export default function AdvocateDashboard() {
               <td colSpan="2">Loading...</td>
             </tr>
           )}
+
           {!loading && approved.length === 0 && (
             <tr>
               <td colSpan="2">No approved clients</td>
             </tr>
           )}
+
           {approved.map((c) => (
             <tr key={c.appointment_id}>
               <td>{c.client_name}</td>
               <td>
                 <button
-                  className="btn"
-                  onClick={() => navigate(`/chat/${c.appointment_id}`)}
+                  className="btn-primary"
+                  onClick={() =>
+                    navigate(`/chat/${c.appointment_id}`)
+                  }
                 >
                   Chat
+                </button>
+                <button
+                  className="del-btn"
+                  onClick={() => deleteClient(p.id)}
+                  style={{ marginLeft: "10px" }}
+                >
+                  Delete
                 </button>
               </td>
             </tr>

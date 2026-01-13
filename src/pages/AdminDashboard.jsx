@@ -94,14 +94,14 @@ export default function AdminDashboard() {
               <td>{u.username}</td>
               <td>
                 <button
-                  className="btn"
+                  className="btn-primary"
                   onClick={() => approveAdvocate(u.id)}
                 >
                   Approve
                 </button>
 
                 <button
-                  className="btn"
+                  className="del-btn"
                   style={{ marginLeft: "10px" }}
                   onClick={() => deleteAdvocate(u.id)}
                 >
