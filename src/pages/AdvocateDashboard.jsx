@@ -165,13 +165,7 @@ const deleteClient = async (id) => {
                 >
                   Chat
                 </button>
-                <button
-                  className="del-btn"
-                  onClick={() => deleteClient(p.id)}
-                  style={{ marginLeft: "10px" }}
-                >
-                  Delete
-                </button>
+                
               </td>
             </tr>
           ))}
